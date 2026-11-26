@@ -2,6 +2,7 @@ package com.nikgapps.v2;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import androidx.activity.ComponentActivity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Picture;
@@ -12,7 +13,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public final class MainActivity extends Activity {
+public final class MainActivity extends ComponentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,15 +24,18 @@ public final class MainActivity extends Activity {
         logo.setContentDescription("NikGappsv2");
         int fallbackSize = Math.round(160 * getResources().getDisplayMetrics().density);
         content.addView(logo, new FrameLayout.LayoutParams(fallbackSize, fallbackSize, Gravity.CENTER));
-        setContentView(content);
+        StartupState startup = new StartupState();
+        NavigationContent.installNavigation(this, content, startup);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PlatformSplash.matchSystemIcon(this, content, logo);
+            PlatformSplash.matchSystemIcon(this, content, logo, () -> startup.setReady(true));
+        } else {
+            content.postOnAnimation(() -> startup.setReady(true));
         }
     }
 
     @TargetApi(Build.VERSION_CODES.S)
     private static final class PlatformSplash {
-        static void matchSystemIcon(Activity activity, FrameLayout content, ImageView logo) {
+        static void matchSystemIcon(Activity activity, FrameLayout content, ImageView logo, Runnable onReady) {
             activity.getSplashScreen().setOnExitAnimationListener(splash -> {
                 View icon = splash.getIconView();
                 if (icon != null && icon.getWidth() > 0 && icon.getHeight() > 0) {
@@ -56,7 +60,10 @@ public final class MainActivity extends Activity {
                             + icon.getWidth() + "x" + icon.getHeight());
                 }
                 // Allow the captured icon to draw before removing the platform overlay.
-                content.postOnAnimation(() -> content.postOnAnimation(splash::remove));
+                content.postOnAnimation(() -> content.postOnAnimation(() -> {
+                    splash.remove();
+                    onReady.run();
+                }));
             });
         }
     }

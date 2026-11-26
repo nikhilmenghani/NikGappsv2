@@ -9,8 +9,8 @@ android {
         applicationId = "com.nikgapps.v2"
         minSdk = 24
         targetSdk = 37
-        versionCode = 4
-        versionName = "0.1.0-phase01.003"
+        versionCode = 5
+        versionName = "0.1.0-phase01.004"
     }
     signingConfigs {
         create("investigation") {
@@ -39,4 +39,5 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.material3:material3:1.5.0-rc01")
     implementation("androidx.navigation:navigation-compose:2.10.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

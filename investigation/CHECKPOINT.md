@@ -1,5 +1,5 @@
-# Phase 01.003 — UI framework dependency inclusion
+# Phase 01.004 — Navigation activation
 
-Adds Compose compiler 2.4.20, Compose BOM 2026.09.00, activity-compose 1.13.0, Material3 1.5.0-rc01 and navigation-compose 2.10.1 using the existing app's versions. The native splash Activity remains unchanged. This separates library inclusion and merged AndroidX components from screen activation.
+Activates Compose in ComponentActivity, retaining the measured native splash handoff. Ports the compact three-item Projects/Downloads/Settings pill, labels, selected states, back navigation and saved destination behavior. Downloads retains its existing Coming soon status. Project creation and settings controls are introduced with their corresponding functional checkpoints.
 
-No explicit network, storage, package-query, analytics or installation permissions are introduced. The release's merged manifest and dependency report record any automatically added components and language-runtime changes. Production-normalized signing; device checks pending.
+Includes Material icons and pins Kotlin plugin 2.4.20 from the original toolchain. No account, registry, storage, analytics or build functionality. Production-normalized signing; device checks pending.
