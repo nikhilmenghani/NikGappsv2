@@ -50,4 +50,28 @@ class BuildProjectRepositoryTest {
         assertThrows(IllegalStateException::class.java) { repository.addProject(project("two")) }
         assertEquals(listOf(project()), repository.getProjects())
     }
+    @Test fun editingPreservesIdentityAndCopyGetsItsOwnRecord() {
+        val storage = MemoryStorage()
+        val repository = BuildProjectRepository(storage)
+        repository.addProject(project())
+        val supported = setOf(AndroidVersion.ANDROID_16, AndroidVersion.ANDROID_17)
+        val edited = repository.updateProject("one", "Changed", AndroidVersion.ANDROID_17, supported).single()
+        assertEquals("one", edited.id)
+        assertEquals(project().createdAt, edited.createdAt)
+        assertEquals(AndroidVersion.ANDROID_17, edited.androidVersion)
+        val copied = repository.copyProject("one", supported).single { it.id != "one" }
+        assertEquals("Changed copy", copied.name)
+        assertEquals(edited.androidVersion, copied.androidVersion)
+        assertTrue(copied.createdAt > edited.createdAt)
+        assertEquals(listOf(copied), repository.deleteProject("one"))
+        assertEquals(listOf(copied), BuildProjectRepository(storage).getProjects())
+        assertThrows(IllegalStateException::class.java) { repository.updateProject("one", "Gone", AndroidVersion.ANDROID_17, supported) }
+    }
+    @Test fun copyCannotExceedRegularCapacity() {
+        val storage = MemoryStorage()
+        val repository = BuildProjectRepository(storage)
+        repeat(5) { repository.addProject(project(it.toString()).copy(androidVersion = AndroidVersion.ANDROID_17)) }
+        assertThrows(IllegalStateException::class.java) { repository.copyProject("0", setOf(AndroidVersion.ANDROID_17)) }
+        assertEquals(5, repository.getProjects().size)
+    }
 }

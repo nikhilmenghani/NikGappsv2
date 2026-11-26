@@ -1,6 +1,9 @@
 package com.nikgapps.v2
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,21 +22,27 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-internal fun LocalProjects(projects: List<BuildProject>) {
+internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) -> Unit, onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit) {
     if (projects.isEmpty()) Box(Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
         Text("No projects yet", style = MaterialTheme.typography.headlineSmall)
     } else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(projects, key = { it.id }) { project -> LocalProjectCard(project) }
+        items(projects, key = { it.id }) { project -> LocalProjectCard(project, onEdit, onCopy, onDelete) }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun LocalProjectCard(project: BuildProject) {
+private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Unit,
+    onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit) {
+    var expanded by remember(project.id) { mutableStateOf(false) }
     val glass = LocalGlassEnabled.current
     val lightGlass = glass && MaterialTheme.colorScheme.background.luminance() >= .5f
     val date = remember(project.createdAt) { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(project.createdAt)) }
-    GlassSurface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
+    Box {
+    GlassSurface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).combinedClickable(
+        onClick = { expanded = true }, onLongClick = { expanded = true },
+        onClickLabel = "Project actions", onLongClickLabel = "Project actions"), shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surfaceContainer, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
         Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(Modifier.size(44.dp), shape = MaterialTheme.shapes.medium,
@@ -59,5 +68,7 @@ private fun LocalProjectCard(project: BuildProject) {
                 }
             }
         }
+    }
+    ProjectActionMenu(expanded, { expanded = false }, { onEdit(project) }, { onCopy(project) }, { onDelete(project) })
     }
 }

@@ -101,6 +101,29 @@ internal class BuildProjectRepository(private val storage: ProjectStorage) {
         saveProjects(existing + newProject(name, version, supported, existing.size))
     }
 
+    fun updateProject(id: String, name: String, version: AndroidVersion, supported: Set<AndroidVersion>): List<BuildProject> = synchronized(WRITE_LOCK) {
+        val existing = getProjects()
+        val project = existing.firstOrNull { it.id == id } ?: error("Project no longer exists")
+        val trimmed = name.trim()
+        require(trimmed.isNotBlank()) { "Enter a project name" }
+        require(trimmed.length <= REGULAR_NAME_LIMIT || trimmed == project.name.trim()) { "Project name is too long" }
+        require(version in supported) { "Choose a supported Android version" }
+        saveProjects(existing.map { if (it.id == id) it.copy(name = trimmed, androidVersion = version) else it })
+    }
+
+    fun copyProject(id: String, supported: Set<AndroidVersion>): List<BuildProject> = synchronized(WRITE_LOCK) {
+        val existing = getProjects()
+        check(existing.size < REGULAR_PROJECT_LIMIT) { "You can keep up to 5 projects" }
+        val project = existing.firstOrNull { it.id == id } ?: error("Project no longer exists")
+        require(project.androidVersion in supported) { "Choose a supported Android version" }
+        saveProjects(existing + project.copy(id = UUID.randomUUID().toString(),
+            name = "${project.name} copy".take(REGULAR_NAME_LIMIT), createdAt = System.currentTimeMillis()))
+    }
+
+    fun deleteProject(id: String): List<BuildProject> = synchronized(WRITE_LOCK) {
+        saveProjects(getProjects().filterNot { it.id == id })
+    }
+
     private fun saveProjects(projects: List<BuildProject>): List<BuildProject> {
         check(storage.write(ProjectCodec.encode(projects))) { "Could not save projects" }
         return projects

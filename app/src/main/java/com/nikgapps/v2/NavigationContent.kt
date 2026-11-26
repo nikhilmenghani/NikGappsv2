@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class StartupState {
     var ready by mutableStateOf(false)
@@ -60,6 +63,17 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
     val targets = remember(context) { publishedProjectTargets(context) }
     var creating by rememberSaveable { mutableStateOf(false) }
     var limitReached by remember { mutableStateOf(false) }
+    var editingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var deletingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var actionError by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    fun perform(action: () -> List<BuildProject>) {
+        scope.launch {
+            try { projects = withContext(Dispatchers.IO) { action() } }
+            catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { actionError = true }
+        }
+    }
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
@@ -120,13 +134,31 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
                 }
             }
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
-                composable("Projects") { LocalProjects(projects) }
+                composable("Projects") { LocalProjects(projects,
+                    onEdit = { editingId = it.id },
+                    onCopy = { project ->
+                        if (projects.size >= REGULAR_PROJECT_LIMIT) limitReached = true
+                        else perform { repository.copyProject(project.id, targets.toSet()) }
+                    }, onDelete = { deletingId = it.id }) }
                 composable("Downloads") { DestinationMessage("Coming soon") }
                 composable("Settings") { AppearanceSettings(preferences) }
             }
         }
     }
     if (creating) ProjectCreationSheet(repository, targets, onSaved = { projects = it; creating = false }, onDismiss = { creating = false })
+    projects.firstOrNull { it.id == editingId }?.let { project ->
+        ProjectCreationSheet(repository, targets, onSaved = { projects = it; editingId = null },
+            onDismiss = { editingId = null }, project = project)
+    }
+    projects.firstOrNull { it.id == deletingId }?.let { project ->
+        DeleteProjectDialog(project, onDismiss = { deletingId = null }, onConfirm = {
+            deletingId = null
+            perform { repository.deleteProject(project.id) }
+        })
+    }
+    if (actionError) AppDialog("Couldn't update project", { actionError = false }) {
+        Text("Please try again.", style = MaterialTheme.typography.bodyMedium)
+    }
     if (limitReached) AppDialog("Project limit reached", { limitReached = false }) {
         Text("You can keep up to 5 projects. Delete a project before creating another.", style = MaterialTheme.typography.bodyMedium)
     }

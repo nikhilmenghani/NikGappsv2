@@ -31,9 +31,9 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProjectCreationSheet(repository: BuildProjectRepository, targets: List<AndroidVersion>,
-    onSaved: (List<BuildProject>) -> Unit, onDismiss: () -> Unit) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var targetId by rememberSaveable { mutableStateOf(targets.first().name) }
+    onSaved: (List<BuildProject>) -> Unit, onDismiss: () -> Unit, project: BuildProject? = null) {
+    var name by rememberSaveable(project?.id) { mutableStateOf(project?.name.orEmpty()) }
+    var targetId by rememberSaveable(project?.id) { mutableStateOf(project?.androidVersion?.name ?: targets.first().name) }
     val target = targets.firstOrNull { it.name == targetId } ?: targets.first()
     var saving by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
@@ -53,7 +53,10 @@ internal fun ProjectCreationSheet(repository: BuildProjectRepository, targets: L
         saving = true; keyboard?.hide()
         scope.launch {
             try {
-                val result = withContext(Dispatchers.IO) { repository.createProject(name, target, targets.toSet()) }
+                val result = withContext(Dispatchers.IO) {
+                    if (project == null) repository.createProject(name, target, targets.toSet())
+                    else repository.updateProject(project.id, name, target, targets.toSet())
+                }
                 onSaved(result)
             } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled
             } catch (_: Exception) { error = true; saving = false }
@@ -62,7 +65,7 @@ internal fun ProjectCreationSheet(repository: BuildProjectRepository, targets: L
     LaunchedEffect(Unit) {
         visible = true
         delay(120)
-        if (!closing) { focus.requestFocus(); keyboard?.show() }
+        if (!closing && project == null) { focus.requestFocus(); keyboard?.show() }
     }
     Dialog(onDismissRequest = ::dismiss, properties = DialogProperties(usePlatformDefaultWidth = false,
         decorFitsSystemWindows = false)) {
@@ -77,7 +80,7 @@ internal fun ProjectCreationSheet(repository: BuildProjectRepository, targets: L
                     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Create project", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+                            Text(if (project == null) "Create project" else "Edit project", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
                             IconButton(onClick = { info = true }) { Icon(AppIcons.Info, "About projects") }
                             Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                                 Text("ARM64 only", Modifier.padding(8.dp, 4.dp), style = MaterialTheme.typography.labelSmall)
@@ -105,7 +108,7 @@ internal fun ProjectCreationSheet(repository: BuildProjectRepository, targets: L
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             GlassTonalButton(onClick = ::dismiss, enabled = !saving && !closing, modifier = Modifier.weight(1f)) { Text("Cancel") }
                             GlassButton(onClick = ::save, enabled = !saving && !closing && name.isNotBlank(), modifier = Modifier.weight(1f)) {
-                                Text(if (saving) "Creating…" else "Create project")
+                                Text(if (saving) "Saving…" else if (project == null) "Create project" else "Save changes")
                             }
                         }
                     }
