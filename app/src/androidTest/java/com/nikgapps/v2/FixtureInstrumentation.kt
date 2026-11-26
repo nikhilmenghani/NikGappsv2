@@ -24,12 +24,13 @@ class FixtureInstrumentation : Instrumentation() {
     }
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
-        check(arguments.getString("scenario", "outdated") == "outdated")
+        val scenario = arguments.getString("scenario", "outdated")
+        check(scenario in setOf("outdated", "outdated-long"))
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
-        val projects = (1..5).map { index -> BuildProject(id = "fixture-$index", name = "Fixture project $index",
+        val projects = (1..if (scenario == "outdated-long") 18 else 5).map { index -> BuildProject(id = "fixture-$index", name = "Fixture project $index",
             androidVersion = AndroidVersion.ANDROID_17, createdAt = 1795737600000L) }
         val unavailable = projects.drop(2).associate { it.id to setOf("retired-fixture-package") }
         runOnMainSync {

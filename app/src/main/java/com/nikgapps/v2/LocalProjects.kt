@@ -34,6 +34,7 @@ import java.util.Locale
 @Composable
 internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) -> Unit, onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit,
     unavailable: Map<String, Set<String>> = emptyMap(), updates: Map<String, ProjectUpdate> = emptyMap()) {
+    var projectReboundOffset by remember { mutableStateOf(0.dp) }
     val initialOrder = remember { initialProjectDisplayOrder(projects, unavailable, updates) }
     val ordered = projectsInDisplayOrder(projects, initialOrder)
     val current = ordered.filterNot { isProjectOutdated(unavailable[it.id], updates[it.id]) }
@@ -42,10 +43,11 @@ internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) 
         Text("No projects yet", style = MaterialTheme.typography.headlineSmall)
     } else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(current, key = { it.id }) { project -> LocalProjectCard(project, onEdit, onCopy, onDelete) }
+        items(current, key = { it.id }) { project -> LocalProjectCard(project, onEdit, onCopy, onDelete, modifier = Modifier.offset(y = projectReboundOffset)) }
         if (outdated.isNotEmpty()) item(key = "outdated-projects") {
-            OutdatedProjectsSection(outdated) { project ->
-                LocalProjectCard(project, onEdit, onCopy, onDelete, outdated = true,
+            OutdatedProjectsSection(outdated.size, onReboundChanged = { projectReboundOffset = it }) { index, modifier, interactive ->
+                val project = outdated[index]
+                LocalProjectCard(project, onEdit, onCopy, onDelete, modifier = modifier, interactive = interactive, outdated = true,
                     message = updates[project.id]?.message?.takeIf { it.isNotBlank() })
             }
         }
@@ -55,17 +57,18 @@ internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Unit,
-    onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit, outdated: Boolean = false, message: String? = null) {
+    onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit, modifier: Modifier = Modifier, interactive: Boolean = true, outdated: Boolean = false, message: String? = null) {
     var detailsExpanded by remember(project.id) { mutableStateOf(false) }
     var expanded by remember(project.id) { mutableStateOf(false) }
     var touch by remember(project.id) { mutableStateOf(Offset.Zero) }
     val glass = LocalGlassEnabled.current
     val lightGlass = glass && MaterialTheme.colorScheme.background.luminance() >= .5f
     val date = remember(project.createdAt) { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(project.createdAt)) }
-    Box {
+    Box(modifier) {
     GlassSurface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).pointerInput(Unit) {
         awaitEachGesture { touch = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position }
     }.combinedClickable(
+        enabled = interactive,
         onClick = { if (outdated) detailsExpanded = !detailsExpanded else expanded = true }, onLongClick = { expanded = true },
         onClickLabel = if (outdated) "Project information" else "Project actions", onLongClickLabel = "Project actions")
         .semantics { stateDescription = if (outdated) "Outdated project" else "Project" }, shape = RoundedCornerShape(18.dp),

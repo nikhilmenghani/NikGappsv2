@@ -1,7 +1,7 @@
-# phase03-005 — outdated-project component
+# phase03-006 — outdated-project deck, swipes and rebound
 
-Adds the original outdated-project predicate, stable display ordering, a collapsed-by-default outdated group and read-only project cards. Outdated projects expose Copy/Delete, with Edit omitted. Tapping an outdated card reveals its information.
+Ports the original stacked-card layout and gesture animation. Outdated cards interpolate from the deck during a downward drag, collapse with an upward drag across the expanded group, and settle with a velocity-dependent spring. Regular project cards share the rebound; the app header stays fixed. A tap uses a smaller regular rebound. Deck clipping prevents stray upper corners.
 
-Registry integration and package selection follow in later checkpoints. This release tests classification and ordering with JVM tests and renders the real component using in-memory inputs from a separate, temporary Android instrumentation APK. Fixtures are not in the main APK, do not modify saved projects, and are not public release attachments. Stack/gesture/bounce transitions follow separately.
+No new production permissions or dependencies. The separate temporary instrumentation APK renders the actual component with short and long in-memory groups, without modifying saved projects. Registry integration remains a later checkpoint.
 
-Verification: release lint and 11 JVM tests; main APK is non-debuggable and has no instrumentation. Device results will be recorded after normal installation of the downloaded release APK, component checks, removal of the temporary test APK, and immediate manual Play Protect scans on OnePlus then Poco. No device pass is claimed in advance.
+Verification: release lint, 11 JVM tests and component-test compilation. Device checks will cover slow/fast gestures, tap expansion, reversal, anchored long-list layout and light/dark/classic styling, then removal of the test tool and manual scans on OnePlus followed by Poco. No device pass is claimed in advance.
