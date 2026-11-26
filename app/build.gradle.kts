@@ -4,14 +4,16 @@ plugins {
 }
 android {
     namespace = "com.nikgapps.v2"
+    testNamespace = "com.nikgapps.v2.test"
     compileSdk = 37
     testBuildType = "release"
     defaultConfig {
         applicationId = "com.nikgapps.v2"
         minSdk = 24
         targetSdk = 37
-        versionCode = 17
-        versionName = "0.1.0-phase03.004"
+        testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
+        versionCode = 18
+        versionName = "0.1.0-phase03.005"
     }
     signingConfigs {
         create("investigation") {

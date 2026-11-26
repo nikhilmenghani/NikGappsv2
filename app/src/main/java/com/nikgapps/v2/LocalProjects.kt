@@ -17,8 +17,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FolderSpecial
+import androidx.compose.material.icons.outlined.FolderOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
@@ -29,19 +32,31 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) -> Unit, onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit) {
+internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) -> Unit, onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit,
+    unavailable: Map<String, Set<String>> = emptyMap(), updates: Map<String, ProjectUpdate> = emptyMap()) {
+    val initialOrder = remember { initialProjectDisplayOrder(projects, unavailable, updates) }
+    val ordered = projectsInDisplayOrder(projects, initialOrder)
+    val current = ordered.filterNot { isProjectOutdated(unavailable[it.id], updates[it.id]) }
+    val outdated = ordered.filter { isProjectOutdated(unavailable[it.id], updates[it.id]) }
     if (projects.isEmpty()) Box(Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
         Text("No projects yet", style = MaterialTheme.typography.headlineSmall)
     } else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(projects, key = { it.id }) { project -> LocalProjectCard(project, onEdit, onCopy, onDelete) }
+        items(current, key = { it.id }) { project -> LocalProjectCard(project, onEdit, onCopy, onDelete) }
+        if (outdated.isNotEmpty()) item(key = "outdated-projects") {
+            OutdatedProjectsSection(outdated) { project ->
+                LocalProjectCard(project, onEdit, onCopy, onDelete, outdated = true,
+                    message = updates[project.id]?.message?.takeIf { it.isNotBlank() })
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Unit,
-    onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit) {
+    onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit, outdated: Boolean = false, message: String? = null) {
+    var detailsExpanded by remember(project.id) { mutableStateOf(false) }
     var expanded by remember(project.id) { mutableStateOf(false) }
     var touch by remember(project.id) { mutableStateOf(Offset.Zero) }
     val glass = LocalGlassEnabled.current
@@ -51,15 +66,17 @@ private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Un
     GlassSurface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).pointerInput(Unit) {
         awaitEachGesture { touch = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position }
     }.combinedClickable(
-        onClick = { expanded = true }, onLongClick = { expanded = true },
-        onClickLabel = "Project actions", onLongClickLabel = "Project actions"), shape = RoundedCornerShape(18.dp),
+        onClick = { if (outdated) detailsExpanded = !detailsExpanded else expanded = true }, onLongClick = { expanded = true },
+        onClickLabel = if (outdated) "Project information" else "Project actions", onLongClickLabel = "Project actions")
+        .semantics { stateDescription = if (outdated) "Outdated project" else "Project" }, shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surfaceContainer, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.padding(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(Modifier.size(44.dp), shape = MaterialTheme.shapes.medium,
-                color = if (glass) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest) {
+                color = if (outdated) MaterialTheme.colorScheme.errorContainer else if (glass) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Outlined.FolderSpecial, null, Modifier.size(if (glass) 28.dp else 24.dp),
-                        tint = if (lightGlass) MaterialTheme.colorScheme.primary else if (glass) MaterialTheme.colorScheme.onPrimaryContainer
+                    Icon(if (outdated) androidx.compose.material.icons.Icons.Outlined.FolderOff else Icons.Outlined.FolderSpecial, null, Modifier.size(if (glass) 28.dp else 24.dp),
+                        tint = if (outdated && lightGlass) MaterialTheme.colorScheme.error else if (outdated) MaterialTheme.colorScheme.onErrorContainer else if (lightGlass) MaterialTheme.colorScheme.primary else if (glass) MaterialTheme.colorScheme.onPrimaryContainer
                             else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -78,9 +95,15 @@ private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Un
                 }
             }
         }
+        if (outdated) VerticalAccordion(detailsExpanded) {
+            Text(message ?: "This project is outdated and can't be changed. Copy it to create a new project, or delete it.",
+                Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        }
     }
     Box(Modifier.absoluteOffset { IntOffset(touch.x.roundToInt(), touch.y.roundToInt()) }.size(0.dp)) {
-        ProjectActionMenu(project.name, expanded, { expanded = false }, { onEdit(project) }, { onCopy(project) }, { onDelete(project) })
+        ProjectActionMenu(project.name, expanded, { expanded = false }, { onEdit(project) }, { onCopy(project) }, { onDelete(project) }, editable = !outdated)
     }
     }
 }

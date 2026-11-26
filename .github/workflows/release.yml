@@ -20,6 +20,10 @@ on:
         description: Signing format
         type: string
         default: normalized
+      fixtures:
+        description: Build separate internal component-test APK
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -69,6 +73,9 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :app:lintRelease :app:assembleRelease --no-daemon
+          if [ '${{ inputs.fixtures }}' = true ]; then
+            ./gradlew :app:assembleReleaseAndroidTest --no-daemon
+          fi
           ./gradlew :app:dependencies --configuration releaseRuntimeClasspath > dependencies.txt
       - name: Normalize and collect evidence
         env:
@@ -86,10 +93,32 @@ jobs:
           "$ANDROID_HOME/build-tools/36.1.0/apksigner" verify --verbose --print-certs evidence/NikGappsv2.apk > evidence/certificate.txt
           grep -q 'cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7' evidence/certificate.txt
           cp dependencies.txt evidence/
-          find app/build/intermediates/merged_manifests -name AndroidManifest.xml -exec cp {} evidence/AndroidManifest.xml \;
+          cp app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml evidence/AndroidManifest.xml
+          ! grep -q "<instrumentation" evidence/AndroidManifest.xml
           git rev-parse HEAD > evidence/source-commit.txt
           sha256sum evidence/NikGappsv2.apk > evidence/SHA256SUMS
           cp investigation/source-baseline.json evidence/
+      - name: Sign internal component-test APK
+        if: inputs.fixtures
+        env:
+          APK_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          APK_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          mkdir "$RUNNER_TEMP/fixture-evidence"
+          python3 .github/normalize_apk_signing.py --input app/build/outputs/apk/androidTest/release/app-release-androidTest.apk --output "$RUNNER_TEMP/fixture-evidence/NikGappsv2Fixtures.apk" --keystore "$V2_KEYSTORE_PATH" --alias "$V2_KEY_ALIAS" --apksigner "$ANDROID_HOME/build-tools/36.1.0/apksigner" --expected-certificate cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7 --report "$RUNNER_TEMP/fixture-evidence/signing-verification.json"
+          cp app/build/intermediates/packaged_manifests/releaseAndroidTest/processReleaseAndroidTestManifest/AndroidManifest.xml "$RUNNER_TEMP/fixture-evidence/AndroidManifest.xml"
+          "$ANDROID_HOME/build-tools/36.1.0/aapt" dump badging "$RUNNER_TEMP/fixture-evidence/NikGappsv2Fixtures.apk" > "$RUNNER_TEMP/fixture-evidence/badging.txt"
+          grep -q "package: name='com.nikgapps.v2.test'" "$RUNNER_TEMP/fixture-evidence/badging.txt"
+          grep -q 'android:targetPackage="com.nikgapps.v2"' "$RUNNER_TEMP/fixture-evidence/AndroidManifest.xml"
+          git rev-parse HEAD > "$RUNNER_TEMP/fixture-evidence/source-commit.txt"
+          (cd "$RUNNER_TEMP/fixture-evidence" && sha256sum NikGappsv2Fixtures.apk > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: inputs.fixtures
+        with:
+          name: nikgappsv2-fixtures-${{ inputs.tag }}
+          path: ${{ runner.temp }}/fixture-evidence/*
+          retention-days: 1
+          if-no-files-found: error
       - name: Publish immutable experimental release
         env:
           GH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

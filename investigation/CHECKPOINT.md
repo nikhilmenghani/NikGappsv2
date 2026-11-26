@@ -1,5 +1,7 @@
-# Phase 03.004 - Radial and list project menus
+# phase03-005 — outdated-project component
 
-Ports the tap-to-choose radial menu, touch-position anchoring, edge clamping and entrance animation. The circle uses shared glass/classic surfaces. Releasing the initiating long press must not execute an action. The saved Appearance switch defaults to radial and retains the tested list fallback; its explanation is behind an information icon.
+Adds the original outdated-project predicate, stable display ordering, a collapsed-by-default outdated group and read-only project cards. Outdated projects expose Copy/Delete, with Edit omitted. Tapping an outdated card reveals its information.
 
-No new dependencies or permissions are included. Verify open/close, radial edit/copy/delete, no action on release, light/dark/classic rendering, list fallback and preference persistence. Complete immediate installation and manual scans on OnePlus followed by identical APK bytes on Poco. Results follow in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).
+Registry integration and package selection follow in later checkpoints. This release tests classification and ordering with JVM tests and renders the real component using in-memory inputs from a separate, temporary Android instrumentation APK. Fixtures are not in the main APK, do not modify saved projects, and are not public release attachments. Stack/gesture/bounce transitions follow separately.
+
+Verification: release lint and 11 JVM tests; main APK is non-debuggable and has no instrumentation. Device results will be recorded after normal installation of the downloaded release APK, component checks, removal of the temporary test APK, and immediate manual Play Protect scans on OnePlus then Poco. No device pass is claimed in advance.

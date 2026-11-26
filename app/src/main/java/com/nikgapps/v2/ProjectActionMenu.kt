@@ -18,14 +18,14 @@ internal val LocalRadialProjectMenu = staticCompositionLocalOf { true }
 
 @Composable
 internal fun ProjectActionMenu(projectName: String, expanded: Boolean, onDismiss: () -> Unit, onEdit: () -> Unit,
-    onCopy: () -> Unit, onDelete: () -> Unit) {
+    onCopy: () -> Unit, onDelete: () -> Unit, editable: Boolean = true) {
     if (LocalRadialProjectMenu.current) {
-        if (expanded) ProjectRadialMenu(projectName, listOf(
-            ProjectRadialAction("Edit project", Icons.Outlined.Edit, compactLabel = "Edit", onClick = onEdit),
-            ProjectRadialAction("Copy project", Icons.Outlined.ContentCopy, compactLabel = "Copy", onClick = onCopy),
-            ProjectRadialAction("Delete project", Icons.Outlined.DeleteOutline, destructive = true,
-                compactLabel = "Delete", onClick = onDelete)
-        ), onDismiss)
+        if (expanded) ProjectRadialMenu(projectName, buildList {
+            if (editable) add(ProjectRadialAction("Edit project", Icons.Outlined.Edit, compactLabel = "Edit", onClick = onEdit))
+            add(ProjectRadialAction("Copy project", Icons.Outlined.ContentCopy, compactLabel = "Copy", onClick = onCopy))
+            add(ProjectRadialAction("Delete project", Icons.Outlined.DeleteOutline, destructive = true,
+                compactLabel = "Delete", onClick = onDelete))
+        }, onDismiss)
         return
     }
     val glass = LocalGlassEnabled.current
@@ -36,7 +36,7 @@ internal fun ProjectActionMenu(projectName: String, expanded: Boolean, onDismiss
         shadowElevation = if (glass) 0.dp else MenuDefaults.ShadowElevation) {
         GlassSurface(shape = shape, color = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurface) {
             Column {
-                DropdownMenuItem(text = { Text("Edit project") }, leadingIcon = { Icon(Icons.Outlined.Edit, null) },
+                if (editable) DropdownMenuItem(text = { Text("Edit project") }, leadingIcon = { Icon(Icons.Outlined.Edit, null) },
                     onClick = { onDismiss(); onEdit() })
                 DropdownMenuItem(text = { Text("Copy project") }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
                     onClick = { onDismiss(); onCopy() })
