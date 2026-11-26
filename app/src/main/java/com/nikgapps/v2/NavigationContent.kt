@@ -1,6 +1,7 @@
 @file:JvmName("NavigationContent")
 package com.nikgapps.v2
 
+import android.content.Context
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,15 +34,20 @@ class StartupState {
 
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
     activity.setContent {
-        MaterialTheme(colorScheme = darkColorScheme(background = Color.Black)) {
-            if (startup.ready) NavigationScreen()
+        val preferences = remember(activity) { activity.getSharedPreferences("appearance", Context.MODE_PRIVATE) }
+        var themeMode by remember { mutableIntStateOf(preferences.getInt("theme_mode", 2)) }
+        AppTheme(activity, themeMode, startup.ready) {
+            if (startup.ready) NavigationScreen(themeMode) { selected ->
+                preferences.edit().putInt("theme_mode", selected).apply()
+                themeMode = selected
+            }
             else AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
         }
     }
 }
 
 @Composable
-private fun NavigationScreen() {
+private fun NavigationScreen(themeMode: Int, onThemeChange: (Int) -> Unit) {
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
@@ -86,7 +92,7 @@ private fun NavigationScreen() {
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
                 composable("Projects") { DestinationMessage("No projects yet") }
                 composable("Downloads") { DestinationMessage("Coming soon") }
-                composable("Settings") { Box(Modifier.fillMaxSize()) }
+                composable("Settings") { AppearanceSettings(themeMode, onThemeChange) }
             }
         }
     }

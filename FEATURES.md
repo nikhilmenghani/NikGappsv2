@@ -2,7 +2,7 @@
 
 Every capability receives its own immutable release. Stop at the first harmful warning, retest controls, isolate the delta and validate the matching correction in the original package.
 
-- [ ] 00 Empty framework app; ordinary/normalized signing controls
+- [x] 00 Empty framework app; ordinary/normalized signing controls
 - [ ] 01 Branding, splash, navigation, shared UI components
 - [ ] 02 Themes, dynamic colors, glass, backgrounds, accordions
 - [ ] 03 Persistence, projects, menus, outdated deck and gestures
