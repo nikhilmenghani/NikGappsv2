@@ -1,7 +1,6 @@
 @file:JvmName("NavigationContent")
 package com.nikgapps.v2
 
-import android.content.Context
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,35 +35,30 @@ class StartupState {
 
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
     activity.setContent {
-        val preferences = remember(activity) { activity.getSharedPreferences("appearance", Context.MODE_PRIVATE) }
-        var themeMode by remember { mutableIntStateOf(preferences.getInt("theme_mode", 2)) }
-        var dynamicColor by remember { mutableStateOf(preferences.getBoolean("dynamic_color", true)) }
-        AppTheme(activity, themeMode, dynamicColor, startup.ready) {
-            if (startup.ready) NavigationScreen(themeMode, dynamicColor, { enabled ->
-                preferences.edit().putBoolean("dynamic_color", enabled).apply()
-                dynamicColor = enabled
-            }) { selected ->
-                preferences.edit().putInt("theme_mode", selected).apply()
-                themeMode = selected
+        val preferences = remember(activity.applicationContext) { AppearancePreferences(activity.applicationContext) }
+        CompositionLocalProvider(LocalGlassEnabled provides preferences.liquidGlass) {
+            AppTheme(activity, preferences.themeMode, preferences.dynamicColor, startup.ready) {
+                ProjectsBackdrop {
+                    if (startup.ready) NavigationScreen(preferences)
+                    else AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
+                }
             }
-            else AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
         }
     }
 }
 
 @Composable
-private fun NavigationScreen(themeMode: Int, dynamicColor: Boolean,
-    onDynamicChange: (Boolean) -> Unit, onThemeChange: (Int) -> Unit) {
-    val dark = usesDarkTheme(themeMode)
+private fun NavigationScreen(preferences: AppearancePreferences) {
+    val dark = usesDarkTheme(preferences.themeMode)
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
     val labels = listOf("Projects", "Downloads", "Settings")
     val icons = listOf(Icons.Default.FolderSpecial, Icons.Default.FileDownload, Icons.Default.Settings)
-    Scaffold(containerColor = MaterialTheme.colorScheme.background, bottomBar = {
+    Scaffold(containerColor = if (LocalGlassEnabled.current) Color.Transparent else MaterialTheme.colorScheme.background, bottomBar = {
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 6.dp),
             horizontalArrangement = Arrangement.Center) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface,
+            GlassSurface(shape = CircleShape, color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
                 Row(Modifier.width(264.dp).padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     labels.forEachIndexed { index, label ->
@@ -98,10 +92,10 @@ private fun NavigationScreen(themeMode: Int, dynamicColor: Boolean,
             Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(route, Modifier.weight(1f).semantics { heading() },
                     style = MaterialTheme.typography.headlineSmall)
-                if (route == "Projects") Surface(shape = CircleShape,
+                if (route == "Projects") GlassSurface(shape = CircleShape,
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                    IconButton(onClick = { onThemeChange(if (dark) 0 else 1) }, modifier = Modifier.size(48.dp)) {
+                    IconButton(onClick = { preferences.changeTheme(if (dark) 0 else 1) }, modifier = Modifier.size(48.dp)) {
                         Icon(if (dark) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
                             if (dark) "Switch to light theme" else "Switch to dark theme",
                             tint = MaterialTheme.colorScheme.onSurface)
@@ -111,7 +105,7 @@ private fun NavigationScreen(themeMode: Int, dynamicColor: Boolean,
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
                 composable("Projects") { DestinationMessage("No projects yet") }
                 composable("Downloads") { DestinationMessage("Coming soon") }
-                composable("Settings") { AppearanceSettings(themeMode, onThemeChange, dynamicColor, onDynamicChange) }
+                composable("Settings") { AppearanceSettings(preferences) }
             }
         }
     }

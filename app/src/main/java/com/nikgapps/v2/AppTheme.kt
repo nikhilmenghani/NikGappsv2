@@ -45,14 +45,17 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 internal fun AppTheme(activity: Activity, mode: Int, dynamicColor: Boolean, ready: Boolean, content: @Composable () -> Unit) {
     val dark = usesDarkTheme(mode)
-    val colors = when {
+    val baseColors = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
             if (dark) dynamicDarkColorScheme(activity) else dynamicLightColorScheme(activity)
         dark -> DarkColorScheme
         else -> LightColorScheme
     }
+    val glass = LocalGlassEnabled.current
+    val colors = if (glass) baseColors.withGlassAccent(dark) else baseColors
     SideEffect {
-        val background = if (ready) colors.background.toArgb() else android.graphics.Color.BLACK
+        WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+        val background = if (!ready) android.graphics.Color.BLACK else if (glass) android.graphics.Color.TRANSPARENT else colors.background.toArgb()
         @Suppress("DEPRECATION")
         activity.window.statusBarColor = background
         @Suppress("DEPRECATION")
