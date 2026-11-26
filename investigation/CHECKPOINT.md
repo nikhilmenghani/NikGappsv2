@@ -1,7 +1,7 @@
-# Phase 02.004 — Liquid glass
+# Phase 02.004-contrast - Glass foreground correction
 
-Ports the existing sampled light-field backdrop, refracted/frosted surfaces, complete outline, shape-matched shadow, coordinated Google-color accents and glass action button. The saved Liquid glass switch enables this styling by default. Navigation, header actions, Appearance and popups share the same backdrop and theme. Its information is hidden behind the adjacent outline icon.
+Sets the scaffold foreground explicitly from the active theme. A transparent scaffold inherited black text for its heading and empty-state message, making these labels hard to read on a dark glass background. This checkpoint changes that foreground and its version only; there are no new features, dependencies or permissions.
 
-The classic appearance is available through the switch. Background selection and accordion motion have their own later checkpoints. Shared appearance preferences preserve the existing theme and dynamic-color keys.
+The preceding phase02-004 APK installed after Google's scan reported it safe on OnePlus. Screenshot review found the foreground defect before progressing to Poco. Installation/manual-scan results remain distinct from visual verification.
 
-Production-normalized signing. Device checks pending for this artifact.
+Repeat the glass toggle, saved settings, light/dark dialogs, headings and rotation checks, then the manual Play Protect scan on OnePlus followed by Poco with identical APK bytes.

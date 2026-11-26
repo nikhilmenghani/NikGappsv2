@@ -55,7 +55,8 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
     val route = entry?.destination?.route ?: "Projects"
     val labels = listOf("Projects", "Downloads", "Settings")
     val icons = listOf(Icons.Default.FolderSpecial, Icons.Default.FileDownload, Icons.Default.Settings)
-    Scaffold(containerColor = if (LocalGlassEnabled.current) Color.Transparent else MaterialTheme.colorScheme.background, bottomBar = {
+    Scaffold(containerColor = if (LocalGlassEnabled.current) Color.Transparent else MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground, bottomBar = {
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 6.dp),
             horizontalArrangement = Arrangement.Center) {
             GlassSurface(shape = CircleShape, color = MaterialTheme.colorScheme.surface,
