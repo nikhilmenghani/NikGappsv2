@@ -25,6 +25,7 @@ public final class MainActivity extends ComponentActivity {
         int fallbackSize = Math.round(160 * getResources().getDisplayMetrics().density);
         content.addView(logo, new FrameLayout.LayoutParams(fallbackSize, fallbackSize, Gravity.CENTER));
         StartupState startup = new StartupState();
+        startup.setReady(savedInstanceState != null);
         NavigationContent.installNavigation(this, content, startup);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PlatformSplash.matchSystemIcon(this, content, logo, () -> startup.setReady(true));
@@ -38,7 +39,7 @@ public final class MainActivity extends ComponentActivity {
         static void matchSystemIcon(Activity activity, FrameLayout content, ImageView logo, Runnable onReady) {
             activity.getSplashScreen().setOnExitAnimationListener(splash -> {
                 View icon = splash.getIconView();
-                if (icon != null && icon.getWidth() > 0 && icon.getHeight() > 0) {
+                if (icon != null && icon.getWidth() > 0 && icon.getHeight() > 0 && content.isAttachedToWindow()) {
                     Picture picture = new Picture();
                     try {
                         icon.draw(picture.beginRecording(icon.getWidth(), icon.getHeight()));
@@ -60,7 +61,8 @@ public final class MainActivity extends ComponentActivity {
                             + icon.getWidth() + "x" + icon.getHeight());
                 }
                 // Allow the captured icon to draw before removing the platform overlay.
-                content.postOnAnimation(() -> content.postOnAnimation(() -> {
+                View decor = activity.getWindow().getDecorView();
+                decor.postOnAnimation(() -> decor.postOnAnimation(() -> {
                     splash.remove();
                     onReady.run();
                 }));

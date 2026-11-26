@@ -1,5 +1,5 @@
-# Phase 02.003 — Dynamic color
+# Phase 02.003 recreation — Startup restoration
 
-Ports the saved Use Dynamic Color setting. Android 12+ uses the framework wallpaper palette; earlier Android uses the existing standard light/dark schemes. Explanatory text is available through the adjacent outline information icon.
+A normal rotation test on Poco reproduced a startup regression in the staged port: Activity recreation could wait indefinitely for a system splash callback that does not run on rotation. Restored Activities now proceed directly to their saved UI, and native splash removal is scheduled on the attached window decor.
 
-Production-normalized signing. Device checks pending for this artifact.
+The dynamic-color capability is otherwise identical to phase02-003. Production-normalized signing. Device checks include cold start, rotation, restored navigation, theme controls and Play Protect.

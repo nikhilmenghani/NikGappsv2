@@ -1,9 +1,17 @@
-## phase00-001
+# Immediate device observations
 
-The exact released normalized APK installed through Android on OnePlus 7 Pro and Poco X3 Pro. Its main screen opened on both phones and completed manual Play Protect scans reported **No harmful apps found**. OnePlus also requested a code-level pre-install scan and reported **This app looks safe**.
+Each APK was downloaded from its GitHub release and its checksum verified. OnePlus was tested first, then the identical artifact on Poco after OnePlus passed. These observations apply at the recorded times.
 
-These are immediate observations. No feature or signing-key cause has been established.
+| Release | OnePlus | Poco |
+|---|---|---|
+| phase00-001 | No harmful apps found | No harmful apps found |
+| phase00-001-ordinary | No harmful apps found | No harmful apps found |
+| phase01-001 | No harmful apps found | No harmful apps found |
+| phase01-002 | No harmful apps found | No harmful apps found |
+| phase01-003 | No harmful apps found | No harmful apps found |
+| phase01-004 | No harmful apps found | No harmful apps found |
+| phase02-001 | No harmful apps found | No harmful apps found |
+| phase02-002 | No harmful apps found | No harmful apps found |
+| phase02-003 | No harmful apps found | No harmful apps found |
 
-## phase00-001-ordinary
-
-Ordinary Gradle signing from the same source and certificate passed installation, app launch and manual Play Protect scans on both phones. APK payloads matched the normalized baseline. OnePlus also returned This app looks safe from its pre-install scan. Signing format alone has not reproduced the original warning in the empty app.
+A separate Poco rotation check found a startup-restoration defect in the staged port. The correction is tracked as phase02-003-recreation. Harmful-app detection has not been reproduced in these v2 checkpoints.
