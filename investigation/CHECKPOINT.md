@@ -1,5 +1,7 @@
-# Phase 00.001 — Empty app
+# Phase 01.001 — Launcher branding
 
-One Android framework Activity displays the application name. No requested permissions, network access, embedded scripts, analytics or third-party runtime SDKs. Release-mode, application ID com.nikgapps.v2, existing NikGapps certificate. The production signing normalizer is copied unchanged.
+Adds only the existing approved NiK launcher artwork, adaptive and monochrome layers, and in-app bitmap resources. The baseline Activity and runtime dependencies are unchanged. No new requested permissions or SDKs. Version code 2.
 
-Device tests are pending. Installation and manual Play Protect scan observations will be recorded after this exact artifact is downloaded from the release.
+Previous checkpoints: normalized and ordinary-signing empty apps both installed, opened and passed manual Play Protect scans on OnePlus 7 Pro and Poco X3 Pro. The ordinary and normalized APK payloads matched.
+
+This release uses production-normalized signing. Device checks are pending for this exact artifact.
