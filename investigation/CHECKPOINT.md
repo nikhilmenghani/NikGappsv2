@@ -1,7 +1,9 @@
-# Phase 02.006 - Vertical accordion motion
+# Phase 03.001 - Local project storage inclusion
 
-Ports the existing settings expand/shrink and fade transition into a shared vertical-only helper. The Appearance section remains collapsed initially, keeps a fixed top and width, and allows a transition to reverse while running. No new dependencies, permissions or unrelated capabilities are included.
+Ports the minimal project record and existing JSON field identifiers, app-private preferences, serialized writes, timestamp migration and damaged-record recovery. Home reads its local project list. No projects or test fixtures are seeded into the app. Creation, editing, selection and account flows remain separate future checkpoints.
 
-Verify collapsed/expanded states, fixed header/navigation, rapid reversals and light/dark behavior with a screen recording, then complete the normal-install and manual Play Protect checks on OnePlus and Poco.
+Release-variant JVM tests cover escaped-name/target/timestamp round trips, partially damaged records, malformed JSON, one-time timestamp migration, duplicate identifiers and failed saves. JUnit and JSON-java are test-only dependencies and absent from the release runtime classpath. Android supplies the production JSON implementation. The existing CI lint verification also runs these tests. The production compiler and signing process remain pinned.
 
-Device observations are recorded after testing in the [investigation ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md). Immediate passes are provisional.
+Device checks cover empty-store reading, restart and navigation. Actual project creation and disk write/reload are exercised by the next capability; this checkpoint records storage inclusion without claiming that creation UI already exists.
+
+Immediate installation and manual-scan observations are recorded in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).

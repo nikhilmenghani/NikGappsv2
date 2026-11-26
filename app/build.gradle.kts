@@ -5,12 +5,13 @@ plugins {
 android {
     namespace = "com.nikgapps.v2"
     compileSdk = 37
+    testBuildType = "release"
     defaultConfig {
         applicationId = "com.nikgapps.v2"
         minSdk = 24
         targetSdk = 37
-        versionCode = 13
-        versionName = "0.1.0-phase02.006"
+        versionCode = 14
+        versionName = "0.1.0-phase03.001"
     }
     signingConfigs {
         create("investigation") {
@@ -34,7 +35,14 @@ android {
     }
 }
 
+// The pinned signing workflow already runs lintRelease; include the storage checks in that verification.
+tasks.matching { it.name == "lintRelease" }.configureEach {
+    dependsOn("testReleaseUnitTest")
+}
+
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303") // JVM tests only; Android supplies org.json in production.
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.material3:material3:1.5.0-rc01")

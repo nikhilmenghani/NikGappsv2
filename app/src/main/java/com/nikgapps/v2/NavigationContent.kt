@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.*
 
 class StartupState {
@@ -51,6 +52,8 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
 @Composable
 private fun NavigationScreen(preferences: AppearancePreferences) {
     val dark = usesDarkTheme(preferences.themeMode)
+    val context = LocalContext.current
+    val projects = remember(context) { BuildProjectRepository(context).getProjects() }
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
@@ -105,7 +108,7 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
                 }
             }
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
-                composable("Projects") { DestinationMessage("No projects yet") }
+                composable("Projects") { DestinationMessage(if (projects.isEmpty()) "No projects yet" else "${projects.size} projects") }
                 composable("Downloads") { DestinationMessage("Coming soon") }
                 composable("Settings") { AppearanceSettings(preferences) }
             }
