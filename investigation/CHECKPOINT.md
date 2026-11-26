@@ -1,5 +1,5 @@
-# Phase 01.002 — System splash handoff
+# Phase 01.003 — UI framework dependency inclusion
 
-Ports black startup surfaces and dynamic platform-icon capture. Android 12+ reuses the system-drawn icon at its measured size and position. Earlier Android uses the existing 160dp bitmap fallback. This checkpoint displays the startup logo; navigation is a later capability.
+Adds Compose compiler 2.4.20, Compose BOM 2026.09.00, activity-compose 1.13.0, Material3 1.5.0-rc01 and navigation-compose 2.10.1 using the existing app's versions. The native splash Activity remains unchanged. This separates library inclusion and merged AndroidX components from screen activation.
 
-No new permissions or runtime dependencies. APK uses production-normalized signing. Both phones passed the previous launcher-artwork checkpoint. Device checks are pending for this artifact.
+No explicit network, storage, package-query, analytics or installation permissions are introduced. The release's merged manifest and dependency report record any automatically added components and language-runtime changes. Production-normalized signing; device checks pending.

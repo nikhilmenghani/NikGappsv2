@@ -1,4 +1,7 @@
-plugins { id("com.android.application") }
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.compose")
+}
 android {
     namespace = "com.nikgapps.v2"
     compileSdk = 37
@@ -6,8 +9,8 @@ android {
         applicationId = "com.nikgapps.v2"
         minSdk = 24
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.1.0-phase01.002"
+        versionCode = 4
+        versionName = "0.1.0-phase01.003"
     }
     signingConfigs {
         create("investigation") {
@@ -24,8 +27,16 @@ android {
             signingConfig = signingConfigs.getByName("investigation")
         }
     }
+    buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+}
+
+dependencies {
+    implementation(platform("androidx.compose:compose-bom:2026.09.00"))
+    implementation("androidx.activity:activity-compose:1.13.0")
+    implementation("androidx.compose.material3:material3:1.5.0-rc01")
+    implementation("androidx.navigation:navigation-compose:2.10.1")
 }
