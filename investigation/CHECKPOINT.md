@@ -1,7 +1,5 @@
-# Phase 01.001 — Launcher branding
+# Phase 01.002 — System splash handoff
 
-Adds only the existing approved NiK launcher artwork, adaptive and monochrome layers, and in-app bitmap resources. The baseline Activity and runtime dependencies are unchanged. No new requested permissions or SDKs. Version code 2.
+Ports black startup surfaces and dynamic platform-icon capture. Android 12+ reuses the system-drawn icon at its measured size and position. Earlier Android uses the existing 160dp bitmap fallback. This checkpoint displays the startup logo; navigation is a later capability.
 
-Previous checkpoints: normalized and ordinary-signing empty apps both installed, opened and passed manual Play Protect scans on OnePlus 7 Pro and Poco X3 Pro. The ordinary and normalized APK payloads matched.
-
-This release uses production-normalized signing. Device checks are pending for this exact artifact.
+No new permissions or runtime dependencies. APK uses production-normalized signing. Both phones passed the previous launcher-artwork checkpoint. Device checks are pending for this artifact.
