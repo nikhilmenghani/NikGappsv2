@@ -1,0 +1,291 @@
+{
+  "baseline": [
+    "Empty signed release",
+    "Ordinary versus production-normalized signing with the same source/certificate"
+  ],
+  "phases": [
+    {
+      "phase": 1,
+      "title": "App shell and branding",
+      "ordered_checkpoints": [
+        "Logo/resources",
+        "System-to-app splash handoff",
+        "Projects/Downloads/Settings and create action",
+        "Shared headers, buttons, dialogs and sheets"
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Appearance",
+      "ordered_checkpoints": [
+        "Light/dark/system",
+        "Dynamic colors",
+        "Liquid glass",
+        "Selectable backgrounds",
+        "Vertical accordion animations"
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Local projects",
+      "ordered_checkpoints": [
+        "Preferences and persistence",
+        "Supported Android/ARM64 creation and validation",
+        "Rename/copy/delete",
+        "Radial/list menus",
+        "Outdated detection/read-only behavior",
+        "Stack expansion, swipes and bounce"
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Network and registry",
+      "ordered_checkpoints": [
+        "Network client and connection handling",
+        "Catalog retrieval/parsing",
+        "Cache and compatibility",
+        "Release snapshots/dependencies",
+        "Authenticated delivery and request limits",
+        "Downloaded icons and fallbacks"
+      ]
+    },
+    {
+      "phase": 5,
+      "title": "GitHub account",
+      "ordered_checkpoints": [
+        "Manual token verification/storage",
+        "Browser/device-code sign-in",
+        "Session restoration/logout",
+        "Required account gate",
+        "Avatar/profile popup",
+        "Token and Why GitHub instructions"
+      ]
+    },
+    {
+      "phase": 6,
+      "title": "Elite membership",
+      "ordered_checkpoints": [
+        "Membership verification/badge",
+        "Project/name limits",
+        "Account capability checks"
+      ]
+    },
+    {
+      "phase": 7,
+      "title": "Package selection",
+      "ordered_checkpoints": [
+        "Unified AppSet and single-package cards",
+        "Individual/group selection",
+        "Dependencies/exclusions",
+        "Search",
+        "Sort/filter/bulk selection",
+        "Full-screen read-only Review Build"
+      ]
+    },
+    {
+      "phase": 8,
+      "title": "Package information",
+      "ordered_checkpoints": [
+        "Identity/version/API/architecture",
+        "Registry icons",
+        "Install partition",
+        "Payload/flashing sizes"
+      ]
+    },
+    {
+      "phase": 9,
+      "title": "Config files",
+      "ordered_checkpoints": [
+        "Native picker import/validation",
+        "Export",
+        "0/1/2 semantics",
+        "Installer/stock preference preservation"
+      ]
+    },
+    {
+      "phase": 10,
+      "title": "Backups",
+      "ordered_checkpoints": [
+        "Versioned export/validation",
+        "Full replacement restore/confirmation",
+        "Regular selection restrictions",
+        "Elite selective restore",
+        "Optional outdated restore"
+      ]
+    },
+    {
+      "phase": 11,
+      "title": "Installed apps",
+      "ordered_checkpoints": [
+        "Targeted status checks",
+        "QUERY_ALL_PACKAGES declaration",
+        "Full discovery/categories/icons",
+        "Badges/version comparisons"
+      ]
+    },
+    {
+      "phase": 12,
+      "title": "Filesystem",
+      "ordered_checkpoints": [
+        "App-private staging",
+        "Public Downloads",
+        "Legacy storage",
+        "All-files declaration/grant",
+        "FileProvider sharing/path configuration"
+      ]
+    },
+    {
+      "phase": 13,
+      "title": "ZIP engine/payloads",
+      "ordered_checkpoints": [
+        "Fixture ZIP writing",
+        "Builder assets",
+        "Recovery scripts",
+        "busybox/update-binary",
+        "Bundled debloater guard",
+        "Package downloads/integrity",
+        "Real flashable assembly"
+      ]
+    },
+    {
+      "phase": 14,
+      "title": "Build options/output",
+      "ordered_checkpoints": [
+        "Dependency payload/size metadata",
+        "Installer/config generation",
+        "Centered GitHub creator credit",
+        "Standard/compressed builds",
+        "Compression prompt/remembered choice",
+        "Elite compression level",
+        "Filename date",
+        "Storage preflight",
+        "Atomic publication",
+        "Replace/Keep both",
+        "Reopen ZIP"
+      ]
+    },
+    {
+      "phase": 15,
+      "title": "Stock apps/debloater",
+      "ordered_checkpoints": [
+        "Resolved removal metadata",
+        "Keep/Delete confirmation and auto-selection",
+        "Debloater editing",
+        "Critical/conflict validation",
+        "Review/config preservation",
+        "Removal instructions"
+      ]
+    },
+    {
+      "phase": 16,
+      "title": "Background builds",
+      "ordered_checkpoints": [
+        "WorkManager inclusion/components",
+        "Scheduling/foreground service",
+        "Persistent operations/recovery",
+        "Progress/log",
+        "Wavy progress",
+        "Notification permission/channels",
+        "Build-stage notifications",
+        "Tap/completion actions"
+      ]
+    },
+    {
+      "phase": 17,
+      "title": "Allowances",
+      "ordered_checkpoints": [
+        "Successful accounting/quota display",
+        "Retry/duplicate protection",
+        "Exhaustion",
+        "Elite reset",
+        "Restart persistence"
+      ]
+    },
+    {
+      "phase": 18,
+      "title": "Release information",
+      "ordered_checkpoints": [
+        "Package release card",
+        "Project update notices",
+        "Date-matched changelog lookup",
+        "YAML inclusion/parsing",
+        "Expanded card animation",
+        "App changelog cache/labels/read marker"
+      ]
+    },
+    {
+      "phase": 19,
+      "title": "App updater",
+      "ordered_checkpoints": [
+        "Release/channel lookup",
+        "Authenticated requests and last-successful fallback",
+        "Mandatory gate",
+        "Scheduled intervals",
+        "REQUEST_INSTALL_PACKAGES declaration",
+        "APK download/validation",
+        "Installer handoff",
+        "Notification update/progress"
+      ]
+    },
+    {
+      "phase": 20,
+      "title": "Identity/analytics",
+      "ordered_checkpoints": [
+        "Android-ID identity",
+        "Displayed Virtual MAC",
+        "PostHog inclusion",
+        "SDK initialization",
+        "App-open event",
+        "Screen/project events",
+        "ZIP success/failure",
+        "GitHub/device properties"
+      ]
+    },
+    {
+      "phase": 21,
+      "title": "Diagnostics/settings",
+      "ordered_checkpoints": [
+        "Own-process Logcat",
+        "Pause/resume/clear",
+        "Export",
+        "Biometric permission/lock",
+        "Battery exemption",
+        "Permission/startup gate",
+        "Developer unlock/preview/update/internet controls",
+        "Context help/bottom tabs/retained position"
+      ]
+    },
+    {
+      "phase": 22,
+      "title": "Parity/migration",
+      "ordered_checkpoints": [
+        "Original backup import",
+        "Regular/Elite end-to-end",
+        "Inventory reconciliation",
+        "Remaining post-v0.82 fixes individually",
+        "Replacement readiness"
+      ]
+    }
+  ],
+  "rules": [
+    "One capability per immutable prerelease",
+    "Only required code/resources/dependencies/permissions are included",
+    "OnePlus normal install, exercise and manual scan first; identical APK on Poco only after pass",
+    "Separate sensitive SDK or permission inclusion from activation",
+    "Record fresh/upgrade path, hashes, certificate, manifest, dependencies, UTC results and screenshots",
+    "Stop on harmful result, retest prior pass, split inclusion/initialization/action, remove and reintroduce suspect",
+    "Confirm minimal finding in original v0.82 package/signing and current source",
+    "Pass means immediate observation only"
+  ],
+  "pending_integration": [
+    "The create action is introduced with real project creation in phase 03 rather than an inert button",
+    "Shared sheets are integrated when the first relevant form is ported; the shell is not yet considered complete"
+  ],
+  "excluded_enhancements": [
+    "Guest/root/unsupported-Android retired paths",
+    "Build-time latest-version enforcement",
+    "Acknowledged analytics delivery before ZIP success",
+    "Authoritative remote quotas",
+    "Incremental backup import"
+  ]
+}

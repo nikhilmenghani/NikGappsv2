@@ -1,6 +1,6 @@
 # Immediate device observations
 
-Each APK was downloaded from its GitHub release and checksum-verified. OnePlus was tested first; Poco received identical bytes only after OnePlus passed. Screenshot digests and UTC observations are in [results.jsonl](results.jsonl). Current OS and Play versions are recorded separately in [test-devices.json](test-devices.json).
+Each APK was downloaded from its GitHub release and checksum-verified. OnePlus was tested first; Poco received identical bytes only after OnePlus passed. Screenshot digests and UTC observations are in [results.jsonl](results.jsonl). Current OS and Play versions are recorded in [test-devices.json](test-devices.json).
 
 | Release | OnePlus manual scan | Poco manual scan |
 |---|---|---|
@@ -16,5 +16,6 @@ Each APK was downloaded from its GitHub release and checksum-verified. OnePlus w
 | phase02-003-recreation | No harmful apps found | No harmful apps found |
 | phase02-004 | No harmful apps found | Not tested |
 | phase02-004-contrast | No harmful apps found | No harmful apps found |
+| phase02-005 | No harmful apps found | No harmful apps found |
 
-The glass foreground and Activity-recreation corrections are port defects, not harmful-app detections. The original v0.82 warning remains unexplained. Passes are immediate observations, not permanent clearance.
+Activity recreation and foreground contrast corrections were port defects, not harmful-app detections. The original v0.82 warning remains unexplained. Passes are immediate observations, not permanent clearance.

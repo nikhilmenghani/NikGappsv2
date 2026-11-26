@@ -41,7 +41,8 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
                     Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                         if (expanded) "Collapse Appearance" else "Expand Appearance")
                 }
-                if (expanded) {
+                VerticalAccordion(expanded) {
+                    Column {
                     Row(Modifier.fillMaxWidth().toggleable(value = preferences.liquidGlass, role = Role.Switch,
                         onValueChange = preferences::changeLiquidGlass).padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically) {
@@ -65,6 +66,7 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         IconButton(onClick = { showInfo = true }) { Icon(AppIcons.Info, "About theme") }
+                    }
                     }
                 }
             }

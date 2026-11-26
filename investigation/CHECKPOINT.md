@@ -1,7 +1,7 @@
-# Phase 02.005 - Selectable backgrounds
+# Phase 02.006 - Vertical accordion motion
 
-Ports Google colors, Ocean, Forest, Dusk and Graphite palettes, a scrollable picker with preview, radio tiles, Cancel/Apply and remembered choice. The shared theme coordinates control colors with the selected background. Background selection is disabled while glass is off, and its help remains behind the adjacent information icon. Settings scrolls when its content does not fit.
+Ports the existing settings expand/shrink and fade transition into a shared vertical-only helper. The Appearance section remains collapsed initially, keeps a fixed top and width, and allows a transition to reverse while running. No new dependencies, permissions or unrelated capabilities are included.
 
-Only the required appearance code and shared tonal action button are added. There are no new permissions or dependencies. Network, account, project and ZIP features remain outside this checkpoint.
+Verify collapsed/expanded states, fixed header/navigation, rapid reversals and light/dark behavior with a screen recording, then complete the normal-install and manual Play Protect checks on OnePlus and Poco.
 
-Verify preview/cancellation/application, all five choices, persistence, light/dark styling and classic fallback, then complete immediate installation and manual scans on OnePlus followed by Poco.
+Device observations are recorded after testing in the [investigation ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md). Immediate passes are provisional.
