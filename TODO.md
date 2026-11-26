@@ -8,3 +8,5 @@
 - Preserve original-app projects before any diagnostic original-package installation.
 - Keep Downloads as a placeholder. Guest builds, unsupported-version bypasses and retired root-installation code are outside the active port.
 - Track build-time latest-version enforcement, confirmed analytics delivery before ZIP publication, authoritative remote quotas and incremental backup restore separately from parity.
+
+- Wire the tested outdated-project component to resolved registry/project selections after those checkpoints; the current component fixtures do not establish live registry integration.

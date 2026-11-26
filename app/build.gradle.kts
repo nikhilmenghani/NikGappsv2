@@ -12,8 +12,8 @@ android {
         minSdk = 24
         targetSdk = 37
         testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
-        versionCode = 19
-        versionName = "0.1.0-phase03.006"
+        versionCode = 20
+        versionName = "0.1.0-phase04.001"
     }
     signingConfigs {
         create("investigation") {
@@ -43,6 +43,7 @@ tasks.matching { it.name == "lintRelease" }.configureEach {
 }
 
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:5.5.0") // Inclusion checkpoint; activation follows separately.
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303") // JVM tests only; Android supplies org.json in production.
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))

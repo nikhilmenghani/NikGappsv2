@@ -1,7 +1,5 @@
-# phase03-006 — outdated-project deck, swipes and rebound
+# phase04-001 — network dependency inclusion
 
-Ports the original stacked-card layout and gesture animation. Outdated cards interpolate from the deck during a downward drag, collapse with an upward drag across the expanded group, and settle with a velocity-dependent spring. Regular project cards share the rebound; the app header stays fixed. A tap uses a smaller regular rebound. Deck clipping prevents stray upper corners.
+Adds only OkHttp 5.5.0, matching the original app dependency. No requests are made and no INTERNET permission is declared in this checkpoint. Activation and connection handling follow in a separate release.
 
-No new production permissions or dependencies. The separate temporary instrumentation APK renders the actual component with short and long in-memory groups, without modifying saved projects. Registry integration remains a later checkpoint.
-
-Verification: release lint, 11 JVM tests and component-test compilation. Device checks will cover slow/fast gestures, tap expansion, reversal, anchored long-list layout and light/dark/classic styling, then removal of the test tool and manual scans on OnePlus followed by Poco. No device pass is claimed in advance.
+Verification: release lint and 11 JVM tests, resolved release dependency graph and merged manifest. Device checks will verify unchanged local project/navigation behavior and that no network permission has been introduced, followed by manual Play Protect scans on OnePlus then Poco. No device pass is claimed in advance.
