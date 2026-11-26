@@ -1,7 +1,5 @@
-# Phase 03.003 - Edit, copy and delete projects
+# Phase 03.004 - Radial and list project menus
 
-Adds the themed list action menu for tapping or holding a project, reuses the top sheet for editing, copies with a new identity/date, and confirms deletion with the shared divider and equal-width buttons. Ripple clipping follows the card's shape. Radial menus and package-selection navigation are separate later checkpoints.
+Ports the tap-to-choose radial menu, touch-position anchoring, edge clamping and entrance animation. The circle uses shared glass/classic surfaces. Releasing the initiating long press must not execute an action. The saved Appearance switch defaults to radial and retains the tested list fallback; its explanation is behind an information icon.
 
-Edits preserve project identity and creation time; copies preserve the target and obey the regular five-project limit. Missing projects cannot be resurrected by an edit. Release tests cover these mutation and persistence rules.
-
-Verify long press, edit/save/cancel, copy, delete/cancel/confirm, restart persistence and themed menus/dialogs, then run the normal installer and manual Play Protect checks on OnePlus and Poco. Results follow in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).
+No new dependencies or permissions are included. Verify open/close, radial edit/copy/delete, no action on release, light/dark/classic rendering, list fallback and preference persistence. Complete immediate installation and manual scans on OnePlus followed by identical APK bytes on Poco. Results follow in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).

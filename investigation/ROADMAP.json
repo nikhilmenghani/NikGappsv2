@@ -277,15 +277,15 @@
     "Confirm minimal finding in original v0.82 package/signing and current source",
     "Pass means immediate observation only"
   ],
-  "pending_integration": [
-    "The create action is introduced with real project creation in phase 03 rather than an inert button",
-    "Shared sheets are integrated when the first relevant form is ported; the shell is not yet considered complete"
-  ],
   "excluded_enhancements": [
     "Guest/root/unsupported-Android retired paths",
     "Build-time latest-version enforcement",
     "Acknowledged analytics delivery before ZIP success",
     "Authoritative remote quotas",
     "Incremental backup import"
-  ]
+  ],
+  "completed_integrations": [
+    "Create action and shared project sheet are integrated and tested in phase03-002."
+  ],
+  "pending_integration": []
 }

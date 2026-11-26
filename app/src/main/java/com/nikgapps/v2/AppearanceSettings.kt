@@ -31,6 +31,7 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
     var showInfo by remember { mutableStateOf(false) }
     var showDynamicInfo by remember { mutableStateOf(false) }
     var showGlassInfo by remember { mutableStateOf(false) }
+    var showRadialInfo by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         GlassSurface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -43,6 +44,14 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
                 }
                 VerticalAccordion(expanded) {
                     Column {
+                    Row(Modifier.fillMaxWidth().toggleable(value = preferences.radialProjectMenu, role = Role.Switch,
+                        onValueChange = preferences::changeRadialProjectMenu).padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("Radial project menu", Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                        IconButton(onClick = { showRadialInfo = true }) { Icon(AppIcons.Info, "About project actions") }
+                        Switch(checked = preferences.radialProjectMenu, onCheckedChange = null)
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Row(Modifier.fillMaxWidth().toggleable(value = preferences.liquidGlass, role = Role.Switch,
                         onValueChange = preferences::changeLiquidGlass).padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically) {
@@ -81,6 +90,9 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
                 Text(label, style = MaterialTheme.typography.bodyLarge)
             }
         }
+    }
+    if (showRadialInfo) AppDialog("Project actions", { showRadialInfo = false }) {
+        Text("Use a circular menu when you hold a project. Turn it off to use the list menu.", style = MaterialTheme.typography.bodyMedium)
     }
     if (showGlassInfo) AppDialog("Liquid glass", { showGlassInfo = false }) {
         Text("Show a colorful background, glass surfaces and coordinated controls across the app. Switch off for the standard background and solid cards. Your light or dark theme still applies.",

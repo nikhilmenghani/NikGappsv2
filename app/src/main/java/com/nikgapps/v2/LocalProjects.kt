@@ -4,6 +4,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,11 +43,14 @@ internal fun LocalProjects(projects: List<BuildProject>, onEdit: (BuildProject) 
 private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Unit,
     onCopy: (BuildProject) -> Unit, onDelete: (BuildProject) -> Unit) {
     var expanded by remember(project.id) { mutableStateOf(false) }
+    var touch by remember(project.id) { mutableStateOf(Offset.Zero) }
     val glass = LocalGlassEnabled.current
     val lightGlass = glass && MaterialTheme.colorScheme.background.luminance() >= .5f
     val date = remember(project.createdAt) { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(project.createdAt)) }
     Box {
-    GlassSurface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).combinedClickable(
+    GlassSurface(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).pointerInput(Unit) {
+        awaitEachGesture { touch = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position }
+    }.combinedClickable(
         onClick = { expanded = true }, onLongClick = { expanded = true },
         onClickLabel = "Project actions", onLongClickLabel = "Project actions"), shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surfaceContainer, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -69,6 +79,8 @@ private fun LocalProjectCard(project: BuildProject, onEdit: (BuildProject) -> Un
             }
         }
     }
-    ProjectActionMenu(expanded, { expanded = false }, { onEdit(project) }, { onCopy(project) }, { onDelete(project) })
+    Box(Modifier.absoluteOffset { IntOffset(touch.x.roundToInt(), touch.y.roundToInt()) }.size(0.dp)) {
+        ProjectActionMenu(project.name, expanded, { expanded = false }, { onEdit(project) }, { onCopy(project) }, { onDelete(project) })
+    }
     }
 }

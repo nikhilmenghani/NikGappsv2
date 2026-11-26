@@ -5,6 +5,12 @@ import androidx.compose.runtime.*
 
 internal class AppearancePreferences(context: Context) {
     private val preferences = context.applicationContext.getSharedPreferences("appearance", Context.MODE_PRIVATE)
+    var radialProjectMenu by mutableStateOf(preferences.getBoolean("radial_project_menu", true))
+        private set
+    fun changeRadialProjectMenu(value: Boolean) {
+        preferences.edit().putBoolean("radial_project_menu", value).apply()
+        radialProjectMenu = value
+    }
     var themeMode by mutableIntStateOf(preferences.getInt("theme_mode", 2))
         private set
     var dynamicColor by mutableStateOf(preferences.getBoolean("dynamic_color", true))
