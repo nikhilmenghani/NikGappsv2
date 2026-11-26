@@ -1,0 +1,10 @@
+{
+  "permissions": [
+    "com.nikgapps.v2.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "startup_initializers": [
+    "androidx.emoji2.text.EmojiCompatInitializer",
+    "androidx.lifecycle.ProcessLifecycleInitializer",
+    "androidx.profileinstaller.ProfileInstallerInitializer"
+  ]
+}

@@ -77,6 +77,7 @@ jobs:
             ./gradlew :app:assembleReleaseAndroidTest --no-daemon
           fi
           ./gradlew :app:dependencies --configuration releaseRuntimeClasspath > dependencies.txt
+          python3 .github/verify_manifest.py app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml investigation/expected-manifest.json
       - name: Normalize and collect evidence
         env:
           APK_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -93,6 +94,7 @@ jobs:
           "$ANDROID_HOME/build-tools/36.1.0/apksigner" verify --verbose --print-certs evidence/NikGappsv2.apk > evidence/certificate.txt
           grep -q 'cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7' evidence/certificate.txt
           cp dependencies.txt evidence/
+          cp investigation/expected-manifest.json evidence/
           cp app/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml evidence/AndroidManifest.xml
           ! grep -q "<instrumentation" evidence/AndroidManifest.xml
           git rev-parse HEAD > evidence/source-commit.txt

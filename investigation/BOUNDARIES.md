@@ -16,3 +16,7 @@ Reference source: `959f3f4f7561a1647c8432133b3243069991c34e`, with the pending-c
 The original APK's permission list does not contain SMS reading/receiving, a notification-listener service or an accessibility service. Broad package visibility, file access, self-update installation, foreground/background work and battery-exemption requests remain separate later checkpoints. This inspection does not explain Google's classification.
 
 An immediate passing v2 scan is evidence for that APK, device, installation path and time. It is not permanent clearance or a confirmed fix for the original application ID. Stop on a harmful verdict, retest the last passing control, minimize the change and perform removal/reintroduction comparisons before modifying original NikGapps.
+
+## Dependency manifest audit
+
+OkHttp 5.5.0 contributes INTERNET and PlatformInitializer automatically. phase04-001 records those defaults (the original prerelease wording was corrected after the merged-manifest audit); phase04-001-isolated removes both for a clean code-inclusion control. Audit merged permissions and initializers rather than inferring them from the app manifest or explicit initialization calls.
