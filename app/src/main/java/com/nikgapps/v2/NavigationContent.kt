@@ -12,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FolderSpecial
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
 
 @Composable
 private fun NavigationScreen(themeMode: Int, onThemeChange: (Int) -> Unit) {
+    val dark = usesDarkTheme(themeMode)
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
@@ -87,8 +90,19 @@ private fun NavigationScreen(themeMode: Int, onThemeChange: (Int) -> Unit) {
         }
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Text(route, Modifier.padding(16.dp).semantics { heading() },
-                style = MaterialTheme.typography.headlineSmall)
+            Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(route, Modifier.weight(1f).semantics { heading() },
+                    style = MaterialTheme.typography.headlineSmall)
+                if (route == "Projects") Surface(shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                    IconButton(onClick = { onThemeChange(if (dark) 0 else 1) }, modifier = Modifier.size(48.dp)) {
+                        Icon(if (dark) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
+                            if (dark) "Switch to light theme" else "Switch to dark theme",
+                            tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
                 composable("Projects") { DestinationMessage("No projects yet") }
                 composable("Downloads") { DestinationMessage("Coming soon") }

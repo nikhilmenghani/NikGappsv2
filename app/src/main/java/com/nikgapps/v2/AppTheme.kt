@@ -43,11 +43,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 internal fun AppTheme(activity: Activity, mode: Int, ready: Boolean, content: @Composable () -> Unit) {
-    val dark = when (mode) {
-        0 -> false
-        1 -> true
-        else -> isSystemInDarkTheme()
-    }
+    val dark = usesDarkTheme(mode)
     val colors = if (dark) DarkColorScheme else LightColorScheme
     SideEffect {
         val background = if (ready) colors.background.toArgb() else android.graphics.Color.BLACK
@@ -61,4 +57,11 @@ internal fun AppTheme(activity: Activity, mode: Int, ready: Boolean, content: @C
         }
     }
     MaterialTheme(colorScheme = colors, content = content)
+}
+
+@Composable
+internal fun usesDarkTheme(mode: Int): Boolean = when (mode) {
+    0 -> false
+    1 -> true
+    else -> isSystemInDarkTheme()
 }
