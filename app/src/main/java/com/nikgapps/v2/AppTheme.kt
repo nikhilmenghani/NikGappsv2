@@ -1,6 +1,7 @@
 package com.nikgapps.v2
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,9 +43,14 @@ private val LightColorScheme = lightColorScheme(
 
 
 @Composable
-internal fun AppTheme(activity: Activity, mode: Int, ready: Boolean, content: @Composable () -> Unit) {
+internal fun AppTheme(activity: Activity, mode: Int, dynamicColor: Boolean, ready: Boolean, content: @Composable () -> Unit) {
     val dark = usesDarkTheme(mode)
-    val colors = if (dark) DarkColorScheme else LightColorScheme
+    val colors = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            if (dark) dynamicDarkColorScheme(activity) else dynamicLightColorScheme(activity)
+        dark -> DarkColorScheme
+        else -> LightColorScheme
+    }
     SideEffect {
         val background = if (ready) colors.background.toArgb() else android.graphics.Color.BLACK
         @Suppress("DEPRECATION")

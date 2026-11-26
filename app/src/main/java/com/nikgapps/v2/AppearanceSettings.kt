@@ -20,10 +20,11 @@ import androidx.compose.ui.window.Dialog
 private val themeLabels = listOf("Light", "Dark", "System")
 
 @Composable
-internal fun AppearanceSettings(mode: Int, onThemeChange: (Int) -> Unit) {
+internal fun AppearanceSettings(mode: Int, onThemeChange: (Int) -> Unit, dynamicColor: Boolean, onDynamicChange: (Boolean) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showChoices by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
+    var showDynamicInfo by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -36,6 +37,12 @@ internal fun AppearanceSettings(mode: Int, onThemeChange: (Int) -> Unit) {
                 }
                 if (expanded) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Row(Modifier.fillMaxWidth().clickable { onDynamicChange(!dynamicColor) }.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("Use Dynamic Color", Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                        IconButton(onClick = { showDynamicInfo = true }) { Icon(AppIcons.Info, "About dynamic color") }
+                        Switch(checked = dynamicColor, onCheckedChange = onDynamicChange)
+                    }
                     Row(Modifier.fillMaxWidth().clickable { showChoices = true }.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
@@ -58,6 +65,10 @@ internal fun AppearanceSettings(mode: Int, onThemeChange: (Int) -> Unit) {
                 Text(label, style = MaterialTheme.typography.bodyLarge)
             }
         }
+    }
+    if (showDynamicInfo) AppDialog("Dynamic color", { showDynamicInfo = false }) {
+        Text("Android 12 and newer use your wallpaper's color palette. Earlier Android versions use the standard app colors.",
+            style = MaterialTheme.typography.bodyMedium)
     }
     if (showInfo) AppDialog("Theme", { showInfo = false }) {
         Text("Choose a light or dark appearance, or follow your device's theme.", style = MaterialTheme.typography.bodyMedium)

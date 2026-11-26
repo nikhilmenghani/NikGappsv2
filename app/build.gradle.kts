@@ -9,8 +9,8 @@ android {
         applicationId = "com.nikgapps.v2"
         minSdk = 24
         targetSdk = 37
-        versionCode = 7
-        versionName = "0.1.0-phase02.002"
+        versionCode = 8
+        versionName = "0.1.0-phase02.003"
     }
     signingConfigs {
         create("investigation") {

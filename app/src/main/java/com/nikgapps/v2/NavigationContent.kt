@@ -38,8 +38,12 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
     activity.setContent {
         val preferences = remember(activity) { activity.getSharedPreferences("appearance", Context.MODE_PRIVATE) }
         var themeMode by remember { mutableIntStateOf(preferences.getInt("theme_mode", 2)) }
-        AppTheme(activity, themeMode, startup.ready) {
-            if (startup.ready) NavigationScreen(themeMode) { selected ->
+        var dynamicColor by remember { mutableStateOf(preferences.getBoolean("dynamic_color", true)) }
+        AppTheme(activity, themeMode, dynamicColor, startup.ready) {
+            if (startup.ready) NavigationScreen(themeMode, dynamicColor, { enabled ->
+                preferences.edit().putBoolean("dynamic_color", enabled).apply()
+                dynamicColor = enabled
+            }) { selected ->
                 preferences.edit().putInt("theme_mode", selected).apply()
                 themeMode = selected
             }
@@ -49,7 +53,8 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
 }
 
 @Composable
-private fun NavigationScreen(themeMode: Int, onThemeChange: (Int) -> Unit) {
+private fun NavigationScreen(themeMode: Int, dynamicColor: Boolean,
+    onDynamicChange: (Boolean) -> Unit, onThemeChange: (Int) -> Unit) {
     val dark = usesDarkTheme(themeMode)
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
@@ -106,7 +111,7 @@ private fun NavigationScreen(themeMode: Int, onThemeChange: (Int) -> Unit) {
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
                 composable("Projects") { DestinationMessage("No projects yet") }
                 composable("Downloads") { DestinationMessage("Coming soon") }
-                composable("Settings") { AppearanceSettings(themeMode, onThemeChange) }
+                composable("Settings") { AppearanceSettings(themeMode, onThemeChange, dynamicColor, onDynamicChange) }
             }
         }
     }
