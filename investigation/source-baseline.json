@@ -1,0 +1,8 @@
+{
+  "source_commit": "959f3f4f7561a1647c8432133b3243069991c34e",
+  "pending_diff_sha256": "1cd127d5992d01747c8f9c0a8bd4ada91f1aec1fdd81bf57b11130f069e4d7c9",
+  "blocked_release_source": "43efaa19392185ce2bb023a6765f68d21ffa1772",
+  "blocked_apk_sha256": "ce0f62992d4ca722c73e503b40e7fe085bdbe19d3552ebcf0db916a2259b310e",
+  "package_id": "com.nikgapps.v2",
+  "certificate_sha256": "cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7"
+}

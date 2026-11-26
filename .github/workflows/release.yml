@@ -1,0 +1,97 @@
+name: Investigation release
+on:
+  workflow_call:
+    secrets:
+      KEYSTORE:
+        required: true
+      KEYSTORE_PASSWORD:
+        required: true
+      PUBLISH_TOKEN:
+        required: true
+    inputs:
+      source_ref:
+        required: true
+        type: string
+      tag:
+        type: string
+        description: Immutable phase tag
+        required: true
+      signing:
+        description: Signing format
+        type: string
+        default: normalized
+permissions:
+  contents: read
+concurrency:
+  group: investigation-release
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          repository: nikhilmenghani/NikGappsv2
+          ref: ${{ inputs.source_ref }}
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: zulu
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Prepare signing
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          V2_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          Path(os.environ['RUNNER_TEMP'], 'signing.keystore').write_bytes(base64.b64decode(os.environ['KEYSTORE']))
+          PY
+          echo "V2_KEYSTORE_PATH=$RUNNER_TEMP/signing.keystore" >> "$GITHUB_ENV"
+          alias=$(keytool -list -v -keystore "$RUNNER_TEMP/signing.keystore" -storepass:env V2_KEYSTORE_PASSWORD | sed -n 's/^Alias name: //p' | head -n 1)
+          test -n "$alias"
+          echo "V2_KEY_ALIAS=$alias" >> "$GITHUB_ENV"
+      - name: Verify and build
+        env:
+          V2_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:lintRelease :app:assembleRelease --no-daemon
+          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath > dependencies.txt
+      - name: Normalize and collect evidence
+        env:
+          APK_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          APK_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SIGNING: ${{ inputs.signing }}
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;36.1.0'
+          mkdir evidence
+          if [ "$SIGNING" = normalized ]; then
+            python3 .github/normalize_apk_signing.py --input app/build/outputs/apk/release/app-release.apk --output evidence/NikGappsv2.apk --keystore "$V2_KEYSTORE_PATH" --alias "$V2_KEY_ALIAS" --apksigner "$ANDROID_HOME/build-tools/36.1.0/apksigner" --expected-certificate cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7 --report evidence/signing-verification.json
+          else
+            cp app/build/outputs/apk/release/app-release.apk evidence/NikGappsv2.apk
+          fi
+          "$ANDROID_HOME/build-tools/36.1.0/apksigner" verify --verbose --print-certs evidence/NikGappsv2.apk > evidence/certificate.txt
+          grep -q 'cca3e6aed9650ae8529bb90c845cd7f77dce41e59f5d81e3b9555adb0984caf7' evidence/certificate.txt
+          cp dependencies.txt evidence/
+          find app/build/intermediates/merged_manifests -name AndroidManifest.xml -exec cp {} evidence/AndroidManifest.xml \;
+          git rev-parse HEAD > evidence/source-commit.txt
+          sha256sum evidence/NikGappsv2.apk > evidence/SHA256SUMS
+          cp investigation/source-baseline.json evidence/
+      - name: Publish immutable experimental release
+        env:
+          GH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          GH_REPO: nikhilmenghani/NikGappsv2
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^phase[0-9]{2}-[0-9]{3}(-[a-z]+)?$ ]]
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo 'Existing release cannot be overwritten'
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" evidence/* --target "${{ inputs.source_ref }}" --prerelease --title "NikGappsv2 $RELEASE_TAG" --notes-file investigation/CHECKPOINT.md
+      - name: Clean signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/signing.keystore"
