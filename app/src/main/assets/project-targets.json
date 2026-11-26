@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "registryCommit": "9a0d39ffc59d3c13a3c1e70a543579e0c9e87504",
+  "architecture": "arm64-v8a",
+  "androidVersions": [
+    "16",
+    "17"
+  ]
+}

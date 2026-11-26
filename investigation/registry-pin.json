@@ -1,0 +1,10 @@
+{
+  "repository": "nikgapps/nikgapps-packages",
+  "commit": "9a0d39ffc59d3c13a3c1e70a543579e0c9e87504",
+  "document": "releases/index.json",
+  "versions": [
+    "16",
+    "17"
+  ],
+  "release_count": 8
+}

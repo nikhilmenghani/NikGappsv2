@@ -11,10 +11,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FolderSpecial
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,7 +55,11 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
 private fun NavigationScreen(preferences: AppearancePreferences) {
     val dark = usesDarkTheme(preferences.themeMode)
     val context = LocalContext.current
-    val projects = remember(context) { BuildProjectRepository(context).getProjects() }
+    val repository = remember(context) { BuildProjectRepository(context) }
+    var projects by remember(context) { mutableStateOf(repository.getProjects()) }
+    val targets = remember(context) { publishedProjectTargets(context) }
+    var creating by rememberSaveable { mutableStateOf(false) }
+    var limitReached by remember { mutableStateOf(false) }
     val navigation = rememberNavController()
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "Projects"
@@ -62,8 +68,9 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
     Scaffold(containerColor = if (LocalGlassEnabled.current) Color.Transparent else MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground, bottomBar = {
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 6.dp),
-            horizontalArrangement = Arrangement.Center) {
-            GlassSurface(shape = CircleShape, color = MaterialTheme.colorScheme.surface,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+            GlassSurface(modifier = Modifier.weight(1f, fill = false).widthIn(max = 264.dp),
+                shape = CircleShape, color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
                 Row(Modifier.width(264.dp).padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     labels.forEachIndexed { index, label ->
@@ -91,6 +98,11 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
                     }
                 }
             }
+            GlassSurface(shape = CircleShape, color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                onClick = { if (projects.size >= REGULAR_PROJECT_LIMIT) limitReached = true else creating = true }) {
+                Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Add, "Create project") }
+            }
         }
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
@@ -108,11 +120,15 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
                 }
             }
             NavHost(navigation, startDestination = "Projects", modifier = Modifier.weight(1f)) {
-                composable("Projects") { DestinationMessage(if (projects.isEmpty()) "No projects yet" else "${projects.size} projects") }
+                composable("Projects") { LocalProjects(projects) }
                 composable("Downloads") { DestinationMessage("Coming soon") }
                 composable("Settings") { AppearanceSettings(preferences) }
             }
         }
+    }
+    if (creating) ProjectCreationSheet(repository, targets, onSaved = { projects = it; creating = false }, onDismiss = { creating = false })
+    if (limitReached) AppDialog("Project limit reached", { limitReached = false }) {
+        Text("You can keep up to 5 projects. Delete a project before creating another.", style = MaterialTheme.typography.bodyMedium)
     }
 }
 

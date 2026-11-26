@@ -1,9 +1,7 @@
-# Phase 03.001 - Local project storage inclusion
+# Phase 03.002 - Local project creation
 
-Ports the minimal project record and existing JSON field identifiers, app-private preferences, serialized writes, timestamp migration and damaged-record recovery. Home reads its local project list. No projects or test fixtures are seeded into the app. Creation, editing, selection and account flows remain separate future checkpoints.
+Adds the shared create action, themed top sheet, project-name validation, ARM64-only target selection and project cards. Android 16/17 are taken from the registry revision recorded in registry-pin.json; no app network client or credentials are included. Regular defaults are five projects and twenty-character names; account/Elite integration remains phase 06.
 
-Release-variant JVM tests cover escaped-name/target/timestamp round trips, partially damaged records, malformed JSON, one-time timestamp migration, duplicate identifiers and failed saves. JUnit and JSON-java are test-only dependencies and absent from the release runtime classpath. Android supplies the production JSON implementation. The existing CI lint verification also runs these tests. The production compiler and signing process remain pinned.
+Project records are now written through the UI and reloaded after restart. Cards use the established glass/classic appearance, project-icon contrast and compact target/date rows. Config import, menus, selection and building remain later capabilities.
 
-Device checks cover empty-store reading, restart and navigation. Actual project creation and disk write/reload are exercised by the next capability; this checkpoint records storage inclusion without claiming that creation UI already exists.
-
-Immediate installation and manual-scan observations are recorded in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).
+Verify keyboard-visible actions, blank-name prevention, Cancel/Back, supported targets, creation, saved names/targets after restart and light/dark/classic cards. Run release tests/lint, normal installation and manual Play Protect scans on OnePlus followed by the identical bytes on Poco. Device results follow in the [ledger](https://github.com/nikhilmenghani/NikGappsv2/blob/main/investigation/RESULTS.md).

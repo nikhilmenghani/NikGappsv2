@@ -96,6 +96,11 @@ internal class BuildProjectRepository(private val storage: ProjectStorage) {
         saveProjects(existing + project)
     }
 
+    fun createProject(name: String, version: AndroidVersion, supported: Set<AndroidVersion>): List<BuildProject> = synchronized(WRITE_LOCK) {
+        val existing = getProjects()
+        saveProjects(existing + newProject(name, version, supported, existing.size))
+    }
+
     private fun saveProjects(projects: List<BuildProject>): List<BuildProject> {
         check(storage.write(ProjectCodec.encode(projects))) { "Could not save projects" }
         return projects
