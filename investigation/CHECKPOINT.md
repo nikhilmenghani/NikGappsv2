@@ -1,7 +1,7 @@
-# Phase 02.004-contrast - Glass foreground correction
+# Phase 02.005 - Selectable backgrounds
 
-Sets the scaffold foreground explicitly from the active theme. A transparent scaffold inherited black text for its heading and empty-state message, making these labels hard to read on a dark glass background. This checkpoint changes that foreground and its version only; there are no new features, dependencies or permissions.
+Ports Google colors, Ocean, Forest, Dusk and Graphite palettes, a scrollable picker with preview, radio tiles, Cancel/Apply and remembered choice. The shared theme coordinates control colors with the selected background. Background selection is disabled while glass is off, and its help remains behind the adjacent information icon. Settings scrolls when its content does not fit.
 
-The preceding phase02-004 APK installed after Google's scan reported it safe on OnePlus. Screenshot review found the foreground defect before progressing to Poco. Installation/manual-scan results remain distinct from visual verification.
+Only the required appearance code and shared tonal action button are added. There are no new permissions or dependencies. Network, account, project and ZIP features remain outside this checkpoint.
 
-Repeat the glass toggle, saved settings, light/dark dialogs, headings and rotation checks, then the manual Play Protect scan on OnePlus followed by Poco with identical APK bytes.
+Verify preview/cancellation/application, all five choices, persistence, light/dark styling and classic fallback, then complete immediate installation and manual scans on OnePlus followed by Poco.

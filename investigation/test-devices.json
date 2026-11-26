@@ -1,0 +1,34 @@
+[
+  {
+    "label": "oneplus",
+    "observed_at_utc": "2026-11-26T22:11:48.193210+00:00",
+    "ro.product.model": "GM1911",
+    "ro.build.version.release": "11",
+    "ro.build.version.sdk": "30",
+    "ro.build.version.security_patch": "2022-06-01",
+    "com.android.vending": {
+      "versionName": "54.4.11-29",
+      "versionCode": "85441120"
+    },
+    "com.google.android.gms": {
+      "versionName": "26.43.30",
+      "versionCode": "264330022"
+    }
+  },
+  {
+    "label": "poco",
+    "observed_at_utc": "2026-11-26T22:11:49.107737+00:00",
+    "ro.product.model": "M2102J20SI",
+    "ro.build.version.release": "17",
+    "ro.build.version.sdk": "37",
+    "ro.build.version.security_patch": "2026-11-01",
+    "com.android.vending": {
+      "versionName": "54.4.11-34",
+      "versionCode": "85441140"
+    },
+    "com.google.android.gms": {
+      "versionName": "26.45.31",
+      "versionCode": "264531035"
+    }
+  }
+]

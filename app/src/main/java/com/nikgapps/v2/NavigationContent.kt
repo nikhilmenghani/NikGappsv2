@@ -36,7 +36,8 @@ class StartupState {
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
     activity.setContent {
         val preferences = remember(activity.applicationContext) { AppearancePreferences(activity.applicationContext) }
-        CompositionLocalProvider(LocalGlassEnabled provides preferences.liquidGlass) {
+        CompositionLocalProvider(LocalGlassEnabled provides preferences.liquidGlass,
+            LocalGlassBackground provides preferences.background) {
             AppTheme(activity, preferences.themeMode, preferences.dynamicColor, startup.ready) {
                 ProjectsBackdrop {
                     if (startup.ready) NavigationScreen(preferences)

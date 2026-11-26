@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.toSize
 
 internal val LocalGlassEnabled = staticCompositionLocalOf { false }
+internal val LocalGlassBackground = staticCompositionLocalOf { GlassBackground.GOOGLE }
 
-private class GlassLightField(val size: Size, base: Color, dark: Boolean) {
-    private val palette = GoogleGlassPalette
+private class GlassLightField(val size: Size, base: Color, dark: Boolean, background: GlassBackground) {
+    private val palette = background.palette
     private val ground = lerp(base, if (dark) palette.darkGround else palette.lightGround, if (dark) .55f else .35f)
     private fun glow(color: Color, alpha: Float, x: Float, y: Float, radius: Float) =
         Brush.radialGradient(listOf(color.copy(alpha = alpha), Color.Transparent),
@@ -53,15 +54,15 @@ private val LocalGlassBackdrop = staticCompositionLocalOf<GlassBackdrop?> { null
 /** Shared scene coordinates let each tile sample the light field at its actual scroll position. */
 @Composable
 internal fun ProjectsBackdrop(modifier: Modifier = Modifier, enabled: Boolean = true,
-    content: @Composable () -> Unit) {
+    background: GlassBackground = LocalGlassBackground.current, content: @Composable () -> Unit) {
     val glassEnabled = enabled && LocalGlassEnabled.current
     val colors = MaterialTheme.colorScheme
     val view = LocalView.current
     val screenLocation = remember(view) { IntArray(2) }
     var size by remember { mutableStateOf(Size.Zero) }
     var origin by remember { mutableStateOf(Offset.Zero) }
-    val field = remember(size, colors.background, glassEnabled) {
-        if (glassEnabled) GlassLightField(size, colors.background, colors.background.luminance() < .5f) else null
+    val field = remember(size, colors.background, glassEnabled, background) {
+        if (glassEnabled) GlassLightField(size, colors.background, colors.background.luminance() < .5f, background) else null
     }
     CompositionLocalProvider(LocalGlassBackdrop provides field?.let { GlassBackdrop(it, origin) }) {
         Box(modifier.fillMaxSize().onSizeChanged { size = it.toSize() }
@@ -74,6 +75,16 @@ internal fun ProjectsBackdrop(modifier: Modifier = Modifier, enabled: Boolean = 
                 drawContent()
             }) { content() }
     }
+}
+
+/** Thumbnails use the same renderer as the actual app backdrop. */
+@Composable
+internal fun BackgroundSwatch(background: GlassBackground, modifier: Modifier = Modifier) {
+    val base = MaterialTheme.colorScheme.background
+    Box(modifier.drawWithCache {
+        val field = GlassLightField(size, base, base.luminance() < .5f, background)
+        onDrawBehind { field.draw(this) }
+    })
 }
 
 @Composable

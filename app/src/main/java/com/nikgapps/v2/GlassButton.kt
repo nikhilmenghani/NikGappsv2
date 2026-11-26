@@ -1,5 +1,7 @@
 package com.nikgapps.v2
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -9,22 +11,68 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
+
 @Composable
-internal fun GlassButton(onClick: () -> Unit, modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(16.dp), content: @Composable RowScope.() -> Unit) {
+private fun glassButtonPadding() = if (LocalGlassEnabled.current)
+    PaddingValues(horizontal = 12.dp, vertical = 8.dp) else ButtonDefaults.ContentPadding
+
+@Composable
+internal fun GlassButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(16.dp),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = glassButtonPadding(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable RowScope.() -> Unit
+) = GlassActionButton(onClick, modifier, enabled, shape, colors, elevation, border,
+    contentPadding, interactionSource, primary = true, content)
+
+@Composable
+internal fun GlassTonalButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(16.dp),
+    colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = glassButtonPadding(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable RowScope.() -> Unit
+) = GlassActionButton(onClick, modifier, enabled, shape, colors, elevation, border,
+    contentPadding, interactionSource, primary = false, content)
+
+/** Keep native button semantics, ripple and disabled handling in both appearances. */
+@Composable
+private fun GlassActionButton(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    shape: Shape,
+    colors: ButtonColors,
+    elevation: ButtonElevation?,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+    primary: Boolean,
+    content: @Composable RowScope.() -> Unit
+) {
     val glass = LocalGlassEnabled.current
-    val classic = ButtonDefaults.buttonColors()
-    val colors = if (glass) ButtonDefaults.buttonColors(
-        containerColor = classic.containerColor.copy(alpha = .12f),
-        contentColor = classic.containerColor,
+    val glassColors = ButtonDefaults.buttonColors(
+        containerColor = colors.containerColor.copy(alpha = if (primary) .12f else .06f),
+        contentColor = if (primary) colors.containerColor else MaterialTheme.colorScheme.onSurface,
         disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = .10f),
         disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
-    ) else classic
+    )
     GlassSurface(modifier.heightIn(min = 48.dp), shape = shape, color = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface) {
         Button(onClick = onClick, modifier = Modifier.heightIn(min = 48.dp),
-            shape = shape, colors = colors, elevation = if (glass) null else ButtonDefaults.buttonElevation(),
-            contentPadding = if (glass) PaddingValues(12.dp, 8.dp) else ButtonDefaults.ContentPadding,
-            content = content)
+            enabled = enabled, shape = shape, colors = if (glass) glassColors else colors,
+            elevation = if (glass) null else elevation, border = if (glass) null else border,
+            contentPadding = contentPadding, interactionSource = interactionSource, content = content)
     }
 }

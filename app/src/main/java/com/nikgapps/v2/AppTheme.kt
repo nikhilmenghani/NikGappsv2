@@ -52,7 +52,7 @@ internal fun AppTheme(activity: Activity, mode: Int, dynamicColor: Boolean, read
         else -> LightColorScheme
     }
     val glass = LocalGlassEnabled.current
-    val colors = if (glass) baseColors.withGlassAccent(dark) else baseColors
+    val colors = if (glass) baseColors.withGlassAccent(dark, LocalGlassBackground.current) else baseColors
     SideEffect {
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
         val background = if (!ready) android.graphics.Color.BLACK else if (glass) android.graphics.Color.TRANSPARENT else colors.background.toArgb()

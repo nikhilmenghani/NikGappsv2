@@ -12,6 +12,14 @@ internal class AppearancePreferences(context: Context) {
     var liquidGlass by mutableStateOf(preferences.getBoolean("liquid_glass", true))
         private set
 
+    var background by mutableStateOf(GlassBackground.fromId(preferences.getString("glass_background", "google").orEmpty()))
+        private set
+
+    fun changeBackground(value: GlassBackground) {
+        preferences.edit().putString("glass_background", value.id).apply()
+        background = value
+    }
+
     fun changeTheme(value: Int) {
         preferences.edit().putInt("theme_mode", value).apply()
         themeMode = value

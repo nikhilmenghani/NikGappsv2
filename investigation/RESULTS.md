@@ -1,8 +1,8 @@
 # Immediate device observations
 
-Each APK was downloaded from its GitHub release and its checksum verified. OnePlus was tested first, then the identical artifact on Poco after OnePlus passed. These observations apply at the recorded times.
+Each APK was downloaded from its GitHub release and checksum-verified. OnePlus was tested first; Poco received identical bytes only after OnePlus passed. Screenshot digests and UTC observations are in [results.jsonl](results.jsonl). Current OS and Play versions are recorded separately in [test-devices.json](test-devices.json).
 
-| Release | OnePlus | Poco |
+| Release | OnePlus manual scan | Poco manual scan |
 |---|---|---|
 | phase00-001 | No harmful apps found | No harmful apps found |
 | phase00-001-ordinary | No harmful apps found | No harmful apps found |
@@ -13,5 +13,8 @@ Each APK was downloaded from its GitHub release and its checksum verified. OnePl
 | phase02-001 | No harmful apps found | No harmful apps found |
 | phase02-002 | No harmful apps found | No harmful apps found |
 | phase02-003 | No harmful apps found | No harmful apps found |
+| phase02-003-recreation | No harmful apps found | No harmful apps found |
+| phase02-004 | No harmful apps found | Not tested |
+| phase02-004-contrast | No harmful apps found | No harmful apps found |
 
-A separate Poco rotation check found a startup-restoration defect in the staged port. The correction is tracked as phase02-003-recreation. Harmful-app detection has not been reproduced in these v2 checkpoints.
+The glass foreground and Activity-recreation corrections are port defects, not harmful-app detections. The original v0.82 warning remains unexplained. Passes are immediate observations, not permanent clearance.
