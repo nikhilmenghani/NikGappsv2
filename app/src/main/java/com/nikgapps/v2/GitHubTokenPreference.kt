@@ -45,6 +45,9 @@ internal fun GitHubAccountSection(account: GitHubAccountStore) {
                 Icon(if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, if (expanded) "Collapse Account" else "Expand Account")
             }
             VerticalAccordion(expanded) {
+                Column {
+                GitHubAccountPreference(account)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.fillMaxWidth().clickable { editor = true }.padding(16.dp), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Icon(Icons.Outlined.Key, null)
@@ -53,6 +56,7 @@ internal fun GitHubAccountSection(account: GitHubAccountStore) {
                         Text(account.profile?.let { "Connected as ${it.login}" } ?: "Not configured",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                }
                 }
             }
         }

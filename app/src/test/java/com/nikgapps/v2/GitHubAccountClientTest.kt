@@ -32,4 +32,18 @@ class GitHubAccountClientTest {
         val failure = assertThrows(GitHubAuthException::class.java) { account.verify("fixture-token") }
         assertFalse(failure.message!!.contains("SENSITIVE"));assertTrue(failure.message!!.contains("connection"))
     }
+    @Test fun signInProfileRetriesOnlyTransientFailures() = kotlinx.coroutines.runBlocking {
+        var count = 0; val pauses = mutableListOf<Long>()
+        val http = OkHttpClient.Builder().addInterceptor {
+            count++; Response.Builder().request(it.request()).protocol(Protocol.HTTP_1_1).code(if (count < 3) 503 else 200)
+                .message("fixture").body("""{"login":"octocat"}""".toResponseBody()).build()
+        }.build()
+        assertEquals("octocat", GitHubAccountClient(http).verifyAfterSignIn("fixture-token") { pauses.add(it) }.login)
+        assertEquals(listOf(5000L,5000L), pauses)
+    }
+    @Test fun signInProfileDoesNotRetryAnInvalidToken() {
+        assertThrows(GitHubAuthException::class.java) { kotlinx.coroutines.runBlocking {
+            client(401,"invalid").verifyAfterSignIn("fixture-token") { error("Invalid tokens must not retry") }
+        } }
+    }
 }

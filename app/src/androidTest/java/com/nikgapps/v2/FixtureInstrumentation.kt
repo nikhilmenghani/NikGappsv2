@@ -28,11 +28,12 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup", "account-token"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup", "account-token", "oauth-view", "oauth-live"))
         if (scenario == "credential-key") {
             finish(Activity.RESULT_OK, Bundle().apply { putString("transfer_public_key", CredentialTransfer.publicKey(targetContext)) })
             return
         }
+        if (scenario == "oauth-live") { checkBrowserOAuth(this); return }
         if (scenario == "account-token") { checkManualTokenUi(this); return }
         if (scenario == "icons-cleanup") {
             CredentialTransfer.clear(targetContext)
@@ -109,6 +110,40 @@ class FixtureInstrumentation : Instrumentation() {
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "oauth-view") {
+            val latch = CountDownLatch(1)
+            val store = GitHubAccountStore(targetContext)
+            val before = store.token()
+            val fake = GitHubDeviceAuthClient(okhttp3.OkHttpClient.Builder().addInterceptor { chain ->
+                val body = if (chain.request().url.encodedPath == "/login/device/code")
+                    """{"device_code":"fixture-device","user_code":"TEST-CODE","verification_uri":"https://github.com/login/device","expires_in":900,"interval":5}"""
+                    else """{"error":"authorization_pending"}"""
+                okhttp3.Response.Builder().request(chain.request()).protocol(okhttp3.Protocol.HTTP_1_1).code(200).message("fixture")
+                    .body(body.toResponseBody()).build()
+            }.build())
+            runOnMainSync {
+                activity.setContent {
+                    CompositionLocalProvider(LocalGlassEnabled provides (theme != "classic"), LocalGlassBackground provides GlassBackground.GOOGLE) {
+                        AppTheme(activity, if (theme == "light") 0 else 1, dynamicColor = false, ready = true) {
+                            ProjectsBackdrop {
+                                Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp)) {
+                                    Text("Browser sign-in", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
+                                    Spacer(Modifier.height(16.dp))
+                                    GlassSurface(color = MaterialTheme.colorScheme.surfaceContainer) { GitHubAccountPreference(store, fake) { } }
+                                    Spacer(Modifier.weight(1f))
+                                    GlassButton(onClick = { latch.countDown() }, modifier = Modifier.fillMaxWidth()) { Text("Finish") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            sendStatus(1, Bundle().apply { putString("oauth_view", "ready; TEST-CODE is synthetic") })
+            check(latch.await(90, TimeUnit.SECONDS))
+            check(store.token() == before) { "Cancelling a pending code changed the existing session" }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("oauth_view", "passed") })
+            return
+        }
         if (scenario == "icons-view") {
             val latch = CountDownLatch(1)
             val requests = java.util.concurrent.atomic.AtomicInteger()
