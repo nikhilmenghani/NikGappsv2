@@ -36,5 +36,6 @@ Each APK was downloaded from its GitHub release and checksum-verified. OnePlus w
 | phase04-009 | No harmful apps found | No harmful apps found |
 | phase04-009-contrast | No harmful apps found | No harmful apps found |
 | phase05-001 | No harmful apps found | No harmful apps found |
+| phase19-002-removed | No harmful apps found | No harmful apps found |
 
 Activity recreation and foreground contrast corrections were port defects, not harmful-app detections. The original v0.82 warning remains unexplained. Passes are immediate observations, not permanent clearance.

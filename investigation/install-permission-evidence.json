@@ -1,5 +1,5 @@
 {
-  "status": "isolation_in_progress",
+  "status": "v2_remove_reintroduce_pattern_reproduced_original_confirmation_pending",
   "suspect": "android.permission.REQUEST_INSTALL_PACKAGES",
   "dex_identical_to_prior": true,
   "posthog_in_blocked_apk": false,
@@ -89,5 +89,104 @@
     }
   ],
   "warning_details": "Installing this app may put your device at risk. Learn more about Play Protect.",
-  "bypass_used": false
+  "bypass_used": false,
+  "removed_control": {
+    "release": "phase19-002-removed",
+    "sha256": "c5e5fbf7239e120b8a43e52e74bf59cf60d343fc686b7b53280799e8fa46e6a6",
+    "oneplus": {
+      "observed_at_utc": "2026-11-27T03:16:59.861635+00:00",
+      "result": "No harmful apps found",
+      "scan_control_pressed": true,
+      "scanning_state_observed": true,
+      "environment": {
+        "model": "GM1911",
+        "android": "11",
+        "sdk": "30",
+        "security_patch": "2022-06-01",
+        "com.android.vending": {
+          "versionName": "54.4.11-29",
+          "versionCode": "85441120"
+        },
+        "com.google.android.gms": {
+          "versionName": "26.43.30",
+          "versionCode": "264330022"
+        },
+        "com.nikgapps.v2": {
+          "versionName": "0.1.0-phase19.002-removed",
+          "versionCode": "35"
+        }
+      },
+      "screenshot_sha256": "7f705338efc366476482746bc9ecbbe43a28e513ee8ff878c594c69a2e62474f"
+    },
+    "poco": {
+      "observed_at_utc": "2026-11-27T03:17:59.952818+00:00",
+      "result": "No harmful apps found",
+      "scan_control_pressed": true,
+      "scanning_state_observed": true,
+      "environment": {
+        "model": "M2102J20SI",
+        "android": "17",
+        "sdk": "37",
+        "security_patch": "2026-11-01",
+        "com.android.vending": {
+          "versionName": "54.4.11-34",
+          "versionCode": "85441140"
+        },
+        "com.google.android.gms": {
+          "versionName": "26.45.31",
+          "versionCode": "264531035"
+        },
+        "com.nikgapps.v2": {
+          "versionName": "0.1.0-phase19.002-removed",
+          "versionCode": "35"
+        }
+      },
+      "screenshot_sha256": "97c53e3750753edd4615761c356f375539b95591f351df7af5aca7609b66bf21"
+    }
+  },
+  "reintroduced_control": {
+    "release": "phase19-003-reintroduced",
+    "apk_sha256": "4345cdfa9be57857d93edd7ccd9fe39f3afe9378fb57d89a1eee590f3d9f955a",
+    "source": "74e1a13a558e8803e90c8da0b31ddd215d2f6318",
+    "oneplus": {
+      "observed_at_utc": "2026-11-27T03:21:58.685650+00:00",
+      "result": "No harmful apps found",
+      "scan_control_pressed": true,
+      "scanning_state_observed": true,
+      "environment": {
+        "model": "GM1911",
+        "android": "11",
+        "sdk": "30",
+        "security_patch": "2022-06-01",
+        "com.android.vending": {
+          "versionName": "54.4.11-29",
+          "versionCode": "85441120"
+        },
+        "com.google.android.gms": {
+          "versionName": "26.43.30",
+          "versionCode": "264330022"
+        },
+        "com.nikgapps.v2": {
+          "versionName": "0.1.0-phase19.003-reintroduced",
+          "versionCode": "36"
+        }
+      },
+      "screenshot_sha256": "88bf2d3317b5268b62b30ae3d977a2d9cb0f3152e37c76aeeeac908b67bf4116"
+    },
+    "poco": {
+      "observed_at_utc": "2026-11-27T03:22:51.909146+00:00",
+      "warning": [
+        "Harmful app blocked",
+        "This app may be harmful."
+      ]
+    },
+    "screenshot_sha256": "8c91a53043896637f959225ca89419e0dc470d5f0edec12c51c828a14dfdc0d3"
+  },
+  "limitations": [
+    "Immediate device-specific observations, not permanent clearance",
+    "Original com.nikgapps removal/reintroduction not yet tested",
+    "Version and source metadata differ; compiled DEX identical",
+    "No runtime grant or in-app APK installation tested",
+    "No inference that PostHog can never contribute to the original detection"
+  ]
 }
