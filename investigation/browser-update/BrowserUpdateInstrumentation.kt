@@ -28,19 +28,24 @@ class BrowserUpdateInstrumentation : Instrumentation() {
     override fun onStart() {
         Thread {
             var activity: ComponentActivity? = null
+            var phase = "arguments"
             try {
                 val mode = parameters.getString("mode") ?: "gate"
                 check(mode in setOf("gate", "home", "notification"))
-                val latest = runBlocking(Dispatchers.IO) { VersionFetcher.fetchLatestVersion() }
-                check(latest == parameters.getString("expectedVersion")) { "Latest published version differs; inspect release lookup" }
+                val latest = checkNotNull(parameters.getString("expectedVersion"))
+                check(AppUpdateBrowser.validVersion(latest))
+                // Start a real activity first: Application.onCreate must finish before preferences/theme access.
+                phase = "start_activity"
+                val host = startActivitySync(Intent(targetContext, PermissionsActivity::class.java)
+                    .putExtra(PermissionsActivity.EXTRA_REVIEW_MODE, true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ComponentActivity
+                activity = host
+                phase = "build_browser_intent"
                 val browser = AppUpdateBrowser.intent(targetContext, latest)
                 check(browser.action == Intent.ACTION_VIEW && browser.data?.scheme == "https")
                 check(browser.`package` != null && browser.`package` != targetContext.packageName)
                 check(browser.extras == null && browser.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION == 0)
                 val clicked = AtomicBoolean(false)
-                val host = startActivitySync(Intent(targetContext, PermissionsActivity::class.java)
-                    .putExtra(PermissionsActivity.EXTRA_REVIEW_MODE, true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ComponentActivity
-                activity = host
+                phase = "render_component"
                 runOnMainSync {
                     host.setContent {
                         NikGappsTheme { ProjectsBackdrop {
@@ -60,7 +65,7 @@ class BrowserUpdateInstrumentation : Instrumentation() {
                     }
                     if (mode == "notification") NotificationUtility.showUpdateAvailable(host, latest)
                 }
-                sendStatus(1, Bundle().apply { putString("browser_check", "ready:" + mode); putString("version", latest) })
+                sendStatus(1, Bundle().apply { putString("browser_check", "ready:" + mode); putString("version", latest); putString("latest_source", "host-verified GitHub releases/latest") })
                 if (mode == "notification") SystemClock.sleep(30_000)
                 else {
                     val deadline = SystemClock.elapsedRealtime() + 180_000
@@ -72,8 +77,8 @@ class BrowserUpdateInstrumentation : Instrumentation() {
                     putString("browser_package", browser.`package`)
                     putString("download_url", browser.dataString)
                 })
-            } catch (_: Throwable) {
-                finish(Activity.RESULT_CANCELED, Bundle().apply { putString("browser_check", "failed; no credentials captured") })
+            } catch (failure: Throwable) {
+                finish(Activity.RESULT_CANCELED, Bundle().apply { putString("browser_check", "failed; no credentials captured"); putString("failure_phase", phase); putString("failure_type", failure.javaClass.simpleName) })
             } finally {
                 activity?.let { host -> runOnMainSync { host.finish() } }
             }
