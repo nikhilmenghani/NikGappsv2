@@ -1,7 +1,7 @@
-# phase04-004 — catalog retrieval and parsing
+# phase04-005 — verified cache and compatibility
 
-Adds reviewed catalog and AppSet parsing plus checksum-verified retrieval from the fixed registry revision. This includes package identity/version/compatibility declarations and dependency references; it does not resolve selections, parse installer/removal payload fields, download packages, or add package-selection UI.
+Adds a 30-minute app-private cache for the complete pinned catalog/AppSet pair, checksum/schema/reference validation, interrupted-write recovery and last-successful fallback after refresh failure. Damaged or mismatched data is rejected. API bounds, declared Android versions, architecture and device-type restrictions are checked without resolving package selections yet.
 
-The separate instrumentation APK exercises the actual repository against the pinned public documents (75 packages, 49 AppSets). Normal-navigation integration follows the registry/selection prerequisites. Complete test fixtures live only in JVM test resources, outside the main APK.
+The separate test APK exercises actual network population, fresh-cache reuse, controlled transport failure, corrupted-cache rejection and compatibility in a task-owned private cache directory, then removes its fixtures. No new production permissions/dependencies. Normal-navigation integration follows selection prerequisites.
 
-Verification: release lint, existing tests and parser tests covering real data, unsupported schema, duplicate IDs and missing AppSet references; manifest expectations unchanged. Device checks will verify real pinned retrieval/parsing, saved local projects and navigation, test-tool removal, then manual scans on OnePlus followed by Poco. No device pass is claimed in advance.
+Verification: release lint, prior tests and cache/compatibility tests, unchanged merged-manifest expectations. Immediate device checks and manual scans follow on OnePlus then Poco; no device pass is claimed in advance.

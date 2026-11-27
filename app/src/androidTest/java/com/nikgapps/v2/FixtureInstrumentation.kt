@@ -25,13 +25,38 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache"))
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "cache") {
+            val directory = java.io.File(targetContext.cacheDir, "cache-component")
+            directory.deleteRecursively()
+            try {
+                val repo = CatalogRepository(directory)
+                val network = repo.load()
+                check(network.source == MetadataSource.NETWORK)
+                check(repo.load().source == MetadataSource.CACHE)
+                val offline = RegistryHttp(okhttp3.OkHttpClient.Builder().addInterceptor { throw java.io.IOException("Controlled transport failure") }.build())
+                check(CatalogRepository(directory, offline).load(forceRefresh = true).source == MetadataSource.FALLBACK)
+                val version = network.catalog.packages.flatMap { it.versions.values }.first { v ->
+                    (v.android.minApi == null || v.android.minApi <= 37) && (v.android.maxApi == null || v.android.maxApi >= 37) &&
+                    (v.architectures.isEmpty() || "arm64-v8a" in v.architectures) && (v.deviceTypes.isEmpty() || "phone" in v.deviceTypes)
+                }
+                validateCompatibility("fixture", version, 37, "arm64-v8a")
+                try { validateCompatibility("fixture", version.copy(architectures = listOf("unsupported")), 37, "arm64-v8a"); error("Architecture accepted") }
+                catch (_: RegistryException.UnsupportedArchitecture) { }
+                java.io.File(directory, "snapshot.json").writeText("broken")
+                check(CatalogRepository(directory, offline).cached() == null)
+                try { CatalogRepository(directory, offline).load(); error("Broken cache accepted") }
+                catch (_: java.io.IOException) { }
+            } finally { directory.deleteRecursively() }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("cache_status", "passed: network, fresh cache, fallback, corrupt rejection and compatibility") })
+            return
+        }
         if (scenario == "catalog") {
-            val snapshot = CatalogRepository().load()
+            val snapshot = CatalogRepository(java.io.File(targetContext.cacheDir, "catalog-component")).load(forceRefresh = true)
             check(snapshot.catalog.packages.size == 75 && snapshot.appSets.appSets.size == 49)
             finish(Activity.RESULT_OK, Bundle().apply {
                 putString("catalog_status", "passed: pinned checksums, schema and references")
