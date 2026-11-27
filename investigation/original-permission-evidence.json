@@ -1,0 +1,173 @@
+{
+  "original_source": "43efaa19392185ce2bb023a6765f68d21ffa1772",
+  "official_and_present_control_apk_sha256": "ce0f62992d4ca722c73e503b40e7fe085bdbe19d3552ebcf0db916a2259b310e",
+  "removed_apk_sha256": "a1644ff4ac2da85400bb55476e9fda17a9e28785bd233c07e942d247b448e526",
+  "official_apk_comparison": {
+    "comparison": "exact official v0.82 APK",
+    "dex_identical": true,
+    "changed_zip_entries": [
+      "AndroidManifest.xml"
+    ],
+    "only_in_official": [],
+    "only_in_diagnostic": []
+  },
+  "oneplus_removed_scan": {
+    "observed_at_utc": "2026-11-27T03:40:52.412217+00:00",
+    "result": "No harmful apps found",
+    "scan_control_pressed": true,
+    "scanning_state_observed": true,
+    "environment": {
+      "model": "GM1911",
+      "android": "11",
+      "sdk": "30",
+      "security_patch": "2022-06-01",
+      "com.android.vending": {
+        "versionName": "54.4.11-29",
+        "versionCode": "85441120"
+      },
+      "com.google.android.gms": {
+        "versionName": "26.43.30",
+        "versionCode": "264330022"
+      },
+      "com.nikgapps.v2": {
+        "versionName": "0.1.0-phase19.003-reintroduced",
+        "versionCode": "36"
+      }
+    },
+    "screenshot_sha256": "c50ba111eb7a88839830a32631c007f2b62f70b392e9f63d4ce5bf78941263f7",
+    "subject_package": "com.nikgapps",
+    "subject_apk_sha256": "a1644ff4ac2da85400bb55476e9fda17a9e28785bd233c07e942d247b448e526"
+  },
+  "poco_removed_scan": {
+    "observed_at_utc": "2026-11-27T03:42:19.382956+00:00",
+    "result": "No harmful apps found",
+    "scan_control_pressed": true,
+    "scanning_state_observed": true,
+    "environment": {
+      "model": "M2102J20SI",
+      "android": "17",
+      "sdk": "37",
+      "security_patch": "2026-11-01",
+      "com.android.vending": {
+        "versionName": "54.4.11-34",
+        "versionCode": "85441140"
+      },
+      "com.google.android.gms": {
+        "versionName": "26.45.31",
+        "versionCode": "264531035"
+      },
+      "com.nikgapps.v2": {
+        "versionName": "0.1.0-phase19.002-removed",
+        "versionCode": "35"
+      }
+    },
+    "screenshot_sha256": "645eda6b51c90dac13d5054618371cf3f34a91f4eaa9e549891b71239308fb72",
+    "subject_package": "com.nikgapps",
+    "subject_version": {
+      "versionCode": "82",
+      "versionName": "0.82"
+    },
+    "subject_apk_sha256": "a1644ff4ac2da85400bb55476e9fda17a9e28785bd233c07e942d247b448e526"
+  },
+  "oneplus_present_warning": {
+    "observed_at_utc": "2026-11-27T03:43:39.927105+00:00",
+    "warning": [
+      "Harmful app blocked",
+      "This app may be harmful."
+    ]
+  },
+  "startup_issue": "Manifest-only removal installs/scans clean, but old Permissions.isPermissionGranted calls canRequestPackageInstalls and throws SecurityException. Usable variant removes INSTALL_APPS map entry; its verification is pending.",
+  "normal_stable_release_published": false,
+  "bypassed_warning": false,
+  "cleanup_apk_sha256": "d9e7976d92d078e4fa912d8a9dc46a95a194757318f984a7d4a0439f777c7950",
+  "cleanup_results": {
+    "oneplus": {
+      "scan": {
+        "observed_at_utc": "2026-11-27T03:48:19.550125+00:00",
+        "result": "No harmful apps found",
+        "scan_control_pressed": true,
+        "scanning_state_observed": true,
+        "environment": {
+          "model": "GM1911",
+          "android": "11",
+          "sdk": "30",
+          "security_patch": "2022-06-01",
+          "com.android.vending": {
+            "versionName": "54.4.11-29",
+            "versionCode": "85441120"
+          },
+          "com.google.android.gms": {
+            "versionName": "26.43.30",
+            "versionCode": "264330022"
+          },
+          "com.nikgapps.v2": {
+            "versionName": "0.1.0-phase19.003-reintroduced",
+            "versionCode": "36"
+          }
+        },
+        "screenshot_sha256": "38aa089b0b26dbd468e3d5c2d84ca7aeab410a0b2c5e612ad69f4f1a6b36eb65",
+        "subject_package": "com.nikgapps",
+        "subject_version": {
+          "versionCode": "82",
+          "versionName": "0.82"
+        },
+        "subject_apk_sha256": "d9e7976d92d078e4fa912d8a9dc46a95a194757318f984a7d4a0439f777c7950"
+      },
+      "startup": {
+        "process_running": true,
+        "permissions_screen_rendered": true,
+        "obsolete_install_access_card_absent": true,
+        "github_sign_in_not_configured": true,
+        "storage_permission_not_changed": true
+      }
+    },
+    "poco": {
+      "scan": {
+        "observed_at_utc": "2026-11-27T03:49:07.993432+00:00",
+        "result": "No harmful apps found",
+        "scan_control_pressed": true,
+        "scanning_state_observed": true,
+        "environment": {
+          "model": "M2102J20SI",
+          "android": "17",
+          "sdk": "37",
+          "security_patch": "2026-11-01",
+          "com.android.vending": {
+            "versionName": "54.4.11-34",
+            "versionCode": "85441140"
+          },
+          "com.google.android.gms": {
+            "versionName": "26.45.31",
+            "versionCode": "264531035"
+          },
+          "com.nikgapps.v2": {
+            "versionName": "0.1.0-phase19.002-removed",
+            "versionCode": "35"
+          }
+        },
+        "screenshot_sha256": "f0fbc0293ef4ca60fa6571ffb2122d2a528480675d8ea735ba64c38288eb6b59",
+        "subject_package": "com.nikgapps",
+        "subject_version": {
+          "versionCode": "82",
+          "versionName": "0.82"
+        },
+        "subject_apk_sha256": "d9e7976d92d078e4fa912d8a9dc46a95a194757318f984a7d4a0439f777c7950"
+      },
+      "startup": {
+        "process_running": true,
+        "permissions_screen_rendered": true,
+        "obsolete_install_access_card_absent": true,
+        "github_sign_in_not_configured": true,
+        "storage_permission_not_changed": true
+      }
+    }
+  },
+  "oneplus_projects_preserved": true,
+  "original_current_source_updated_files": [
+    "app/src/main/AndroidManifest.xml",
+    "app/src/main/java/com/nikgapps/app/utils/constants/PermissionConstants.kt"
+  ],
+  "current_source_validation": "testDebugUnitTest and lintRelease passed",
+  "previous_dirty_changes_preserved": true,
+  "remaining_release_work": "Replace direct APK install and canRequestPackageInstalls updater paths with permission-free handoff before stable release."
+}
