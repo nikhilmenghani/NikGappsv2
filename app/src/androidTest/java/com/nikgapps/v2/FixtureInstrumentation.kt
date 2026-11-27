@@ -28,9 +28,14 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup", "account-token", "oauth-view", "oauth-live"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup", "account-token", "oauth-view", "oauth-live", "oauth-safety"))
         if (scenario == "credential-key") {
             finish(Activity.RESULT_OK, Bundle().apply { putString("transfer_public_key", CredentialTransfer.publicKey(targetContext)) })
+            return
+        }
+        if (scenario == "oauth-safety") {
+            checkBrowserPageSafety()
+            finish(Activity.RESULT_OK, Bundle().apply { putString("oauth_safety", "passed: exact path, password, two-factor, passkey and wrong-origin isolation") })
             return
         }
         if (scenario == "oauth-live") { checkBrowserOAuth(this); return }

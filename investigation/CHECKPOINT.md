@@ -1,11 +1,7 @@
-# phase05-002 — GitHub browser/device-code sign-in
+# phase05-002-browser — browser test page isolation
 
-Adds GitHub account sign-in through the original app's existing public OAuth client identifier. The device flow uses GitHub's fixed HTTPS endpoints without a client secret or embedded credentials. It honors polling intervals, slow-down responses, expiry, cancellation, transient failures and request limits. The returned token is used to verify the account before replacing the encrypted local session; failed/cancelled sign-in preserves the existing account.
+Corrects only the separate instrumentation driver's browser targeting. Automatic code pasting requires GitHub's exact `/login/device` path, a device-activation page and no login, two-factor or passkey prompt. Explicit HTTP URLs are rejected. Unknown account or consent still requires the user. Passwords, actual codes and tokens are never returned or captured.
 
-The Account settings row opens the shared-style glass dialog with a divider, 16dp buttons and a scrollable body. The one-time code is copied as sensitive clipboard content and GitHub opens in the browser. Automatic session revalidation/logout, required account gating, avatar popup and expanded instructions remain later checkpoints.
+Production OAuth behavior is unchanged; the main APK changes version identity. The previous attempt installed normally and passed synthetic dialog checks but stopped at browser login; see [interrupted observations](INTERRUPTED.md). No real OAuth pass or post-feature scan is claimed for that attempt. Its prior manual-token session remains available.
 
-Verification: release lint and 53 JVM tests, including protocol timing, long slow-down/expiry, cancellation, denial, transient retry, safe code logging and post-authorization profile retry. A host preflight confirmed that the existing public OAuth client has device flow enabled; its temporary codes were discarded without logging. No new dependencies or manifest permissions are introduced.
-
-Separate instrumentation renders synthetic TEST-CODE dialogs in light/dark/classic mode without opening a browser or changing the session, then exercises the real browser flow. Actual authorization codes, tokens and password fields are not captured or dumped. Only explicitly recognized consent for the previously configured account can be approved automatically; browser login or unverified account/consent requires the user. Device success and immediate scans must be observed on OnePlus before Poco; no pass is claimed in advance.
-
-Reference: [GitHub device authorization flow](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#device-flow).
+Verification: release lint, 53 unit tests and fixture compilation. Repeat controlled dialog views and real authorization on OnePlus, then the same APK bytes on Poco only after OnePlus passes. Browser login/authorization remains a user step when required. No new device pass is claimed in advance.

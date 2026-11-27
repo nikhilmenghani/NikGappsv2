@@ -67,16 +67,15 @@ internal fun checkBrowserOAuth(instrumentation: Instrumentation) {
             if (browser in setOf("com.android.chrome", "org.lineageos.jelly", "org.mozilla.firefox")) {
                 val texts = current.map(::publicText)
                 val loginRequired = current.any { it.isPassword } || texts.any { it.contains("Sign in to GitHub", ignoreCase = true) }
-                val trustedOrigin = current.any { n ->
-                    if (!n.isEditable || n.isPassword) false else {
-                        val address = n.text?.toString().orEmpty()
-                        address.startsWith("https://github.com/") || address.startsWith("github.com/")
-                    }
-                }
+                val addresses = current.filter { n -> n.isEditable && !n.isPassword &&
+                    generateSequence(n.parent) { it.parent }.take(16).none { it.className?.toString()?.contains("WebView") == true } }
+                    .map { it.text?.toString().orEmpty() }
+                val trustedOrigin = addresses.any { !it.startsWith("http://") && it.removePrefix("https://").startsWith("github.com/") }
+                val twoFactorPage = texts.any { it.contains("two-factor", true) || it.contains("authentication code", true) || it.contains("security key", true) || it.contains("passkey", true) }
                 var phase = "browser_confirmation_required"
-                if (loginRequired) phase = "browser_sign_in_required"
+                if (loginRequired || twoFactorPage) phase = "browser_sign_in_required"
                 else if (trustedOrigin) {
-                    val devicePage = texts.any { it.contains("device activation", true) || it.contains("Enter the code", true) }
+                    val devicePage = browserDeviceCodeForm(addresses, texts, current.any { it.isPassword })
                     if (devicePage && !pasted) {
                         val field = current.firstOrNull { n -> n.isEditable && !n.isPassword &&
                             generateSequence(n.parent) { it.parent }.take(16).any { it.className?.toString()?.contains("WebView") == true } }
@@ -112,4 +111,25 @@ internal fun checkBrowserOAuth(instrumentation: Instrumentation) {
         val current = GitHubAccountStore(context)
         if (current.token().isBlank()) current.save(oldToken, owner)
     }
+}
+
+
+internal fun browserDeviceCodeForm(addresses: List<String>, labels: List<String>, hasPassword: Boolean): Boolean {
+    if (hasPassword || labels.any { it.contains("two-factor", true) || it.contains("authentication code", true) ||
+        it.contains("security key", true) || it.contains("passkey", true) }) return false
+    val exact = addresses.any { raw -> !raw.startsWith("http://") &&
+        raw.removePrefix("https://").substringBefore('?').trimEnd('/') == "github.com/login/device" }
+    return exact && labels.any { it.contains("device activation", true) }
+}
+internal fun checkBrowserPageSafety() {
+    val device = listOf("https://github.com/login/device")
+    val heading = listOf("Device Activation")
+    check(browserDeviceCodeForm(device, heading, false))
+    check(!browserDeviceCodeForm(device, heading, true))
+    for (label in listOf("Two-factor authentication", "Authentication code", "Use a passkey", "Security key"))
+        check(!browserDeviceCodeForm(device, heading + label, false))
+    for (address in listOf("https://github.com/sessions/two-factor", "https://github.com/login", "http://github.com/login/device",
+        "https://github.com.evil.test/login/device", "https://other.test/login/device"))
+        check(!browserDeviceCodeForm(listOf(address), heading, false))
+    check(!browserDeviceCodeForm(device, listOf("Enter the code from your authenticator"), false))
 }
