@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,9 +28,38 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup"))
         if (scenario == "credential-key") {
             finish(Activity.RESULT_OK, Bundle().apply { putString("transfer_public_key", CredentialTransfer.publicKey(targetContext)) })
+            return
+        }
+        if (scenario == "icons-cleanup") {
+            java.io.File(targetContext.cacheDir, "icons-component").deleteRecursively()
+            finish(Activity.RESULT_OK, Bundle().apply { putString("icons_cleanup", "passed") })
+            return
+        }
+        if (scenario == "icons-data") {
+            val directory = java.io.File(targetContext.cacheDir, "icons-component")
+            directory.deleteRecursively()
+            var runtimeToken = CredentialTransfer.take(targetContext)
+            RegistryDelivery.userToken = { runtimeToken }
+            try {
+                val repo = RegistryIconRepository(directory)
+                val chrome = checkNotNull(repo.iconBlocking("com.android.chrome"))
+                check(chrome.length() == 10871L)
+                check(checkNotNull(repo.iconBlocking("com.google.android.gms")).length() == 7253L)
+                check(repo.iconBlocking("com.nikgapps.missing.fixture") == null)
+                var requests = 0
+                val offline = RegistryHttp(okhttp3.OkHttpClient.Builder().addInterceptor {
+                    requests++; throw java.io.IOException("Controlled offline icon check")
+                }.build(), maxAttempts = 1)
+                val cached = RegistryIconRepository(directory, offline)
+                check(cached.iconBlocking("com.android.chrome") == chrome && requests == 0)
+                chrome.writeText("broken")
+                check(cached.iconBlocking("com.android.chrome") == null && requests == 1)
+                check(checkNotNull(repo.iconBlocking("com.android.chrome")).length() == 10871L)
+            } finally { runtimeToken = ""; RegistryDelivery.userToken = { "" }; CredentialTransfer.clear(targetContext) }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("icons_status", "passed: pinned Chrome/Gms, verified offline cache, corrupt rejection and standard fallback") })
             return
         }
         if (scenario == "auth") {
@@ -77,6 +107,41 @@ class FixtureInstrumentation : Instrumentation() {
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "icons-view") {
+            val latch = CountDownLatch(1)
+            val requests = java.util.concurrent.atomic.AtomicInteger()
+            val repo = RegistryIconRepository(java.io.File(targetContext.cacheDir, "icons-component"),
+                RegistryHttp(okhttp3.OkHttpClient.Builder().addInterceptor { requests.incrementAndGet(); throw java.io.IOException("Controlled offline icon UI") }.build(), maxAttempts = 1))
+            runOnMainSync {
+                activity.setContent {
+                    CompositionLocalProvider(LocalGlassEnabled provides (theme != "classic"), LocalGlassBackground provides GlassBackground.GOOGLE) {
+                        AppTheme(activity, if (theme == "light") 0 else 1, dynamicColor = false, ready = true) {
+                            ProjectsBackdrop {
+                                Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    Text("App icons", style = MaterialTheme.typography.headlineSmall)
+                                    for ((name, id) in listOf("Chrome" to "com.android.chrome", "Google Play services" to "com.google.android.gms", "Standard fallback" to "com.nikgapps.missing.fixture")) {
+                                        ProjectGlassSurface(Modifier.fillMaxWidth()) {
+                                            Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                                PackageIcon(id, Modifier.size(40.dp), repo)
+                                                Text(name, style = MaterialTheme.typography.bodyLarge)
+                                            }
+                                        }
+                                    }
+                                    Spacer(Modifier.weight(1f))
+                                    HorizontalDivider()
+                                    GlassButton(onClick = { latch.countDown() }, modifier = Modifier.fillMaxWidth()) { Text("Close") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            sendStatus(1, Bundle().apply { putString("icons_view", "ready") })
+            check(latch.await(90, TimeUnit.SECONDS)) { "Icon component view timed out" }
+            check(requests.get() == 0) { "Cached icon UI attempted a request" }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("icons_view", "passed") })
+            return
+        }
         if (scenario == "resolution") {
             val directory = java.io.File(targetContext.cacheDir, "resolution-component")
             directory.deleteRecursively()
@@ -184,3 +249,5 @@ class FixtureInstrumentation : Instrumentation() {
         finish(Activity.RESULT_OK, Bundle().apply { putString("fixture", "finished") })
     }
 }
+
+private fun RegistryIconRepository.iconBlocking(name: String) = kotlinx.coroutines.runBlocking { icon(name) }
