@@ -4,7 +4,7 @@
   "files": {
     "app/src/main/AndroidManifest.xml": "6a567161e31fbda59cf44ccd0e0336c2e31ce27c6ee5b941b1b3749f9a51cf34",
     "app/src/main/java/com/nikgapps/MainActivity.kt": "0efc3f7d2ddcdddee51a240acde58ba003592af8c7111d0c0beda1d52c20f544",
-    "app/src/main/java/com/nikgapps/app/update/AppUpdateBrowser.kt": "2f02748034897abcc8fc04cffd14f4f11c154738285b72cf7caa75457cc4e400",
+    "app/src/main/java/com/nikgapps/app/update/AppUpdateBrowser.kt": "ce1bcf8aa16fed714e8e063c8f7b3f0eafe9097fa85dd2e1225b26a5ab8cf4b1",
     "app/src/main/java/com/nikgapps/app/update/AppUpdateManager.kt": "554de416bc208bd5abc51baae9ea79393b092a595e63b5f6aaa5aeeaac6f29f8",
     "app/src/main/java/com/nikgapps/app/update/MandatoryUpdateGate.kt": "bf6a215cb6088061ec01d5e71c543940fa2cb81734e36cc8610e07150a73f4dc",
     "app/src/main/java/com/nikgapps/app/update/UpdateActionReceiver.kt": "6b07d89a3cd4920489be4a4f25c8d654dfc5728588281378dc3d9c8060e7fda9",

@@ -42,7 +42,7 @@ class BrowserUpdateInstrumentation : Instrumentation() {
                 phase = "build_browser_intent"
                 val browser = AppUpdateBrowser.intent(targetContext, latest)
                 check(browser.action == Intent.ACTION_VIEW && browser.data?.scheme == "https")
-                check(browser.`package` != null && browser.`package` != targetContext.packageName)
+                check(browser.`package` != targetContext.packageName)
                 check(browser.extras == null && browser.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION == 0)
                 val clicked = AtomicBoolean(false)
                 phase = "render_component"

@@ -40,7 +40,12 @@ object AppUpdateBrowser {
         }
         if (preferred != null) return target(preferred)
         if (browsers.size == 1) return target(browsers.single().activityInfo.packageName)
-        if (browsers.isEmpty()) throw ActivityNotFoundException("No browser available")
+        // Launching an HTTPS intent does not require package-query visibility.
+        // Some Android builds hide browsers from queries even when they can open links.
+        if (browsers.isEmpty()) return Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
         val intents = browsers.map { target(it.activityInfo.packageName) }
         return Intent.createChooser(intents.first(), "Open with browser").apply {
             putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.drop(1).toTypedArray())
