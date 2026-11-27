@@ -1,0 +1,20 @@
+{
+  "base_original_source": "959f3f4f7561a1647c8432133b3243069991c34e",
+  "files": {
+    "app/src/main/AndroidManifest.xml": "6a567161e31fbda59cf44ccd0e0336c2e31ce27c6ee5b941b1b3749f9a51cf34",
+    "app/src/main/java/com/nikgapps/MainActivity.kt": "0efc3f7d2ddcdddee51a240acde58ba003592af8c7111d0c0beda1d52c20f544",
+    "app/src/main/java/com/nikgapps/app/update/AppUpdateBrowser.kt": "2f02748034897abcc8fc04cffd14f4f11c154738285b72cf7caa75457cc4e400",
+    "app/src/main/java/com/nikgapps/app/update/AppUpdateManager.kt": "554de416bc208bd5abc51baae9ea79393b092a595e63b5f6aaa5aeeaac6f29f8",
+    "app/src/main/java/com/nikgapps/app/update/MandatoryUpdateGate.kt": "e385be2a734e6b710fcd3ea41af83c20e20938c653b721831d2a14fbcdaf06b4",
+    "app/src/main/java/com/nikgapps/app/update/UpdateActionReceiver.kt": "6b07d89a3cd4920489be4a4f25c8d654dfc5728588281378dc3d9c8060e7fda9",
+    "app/src/main/java/com/nikgapps/app/update/UpdateCheckWorker.kt": "62bb6fe73fec8e6a53e43e6f47b9f556753d3032b03eea12cdfe51ab25c74892",
+    "app/src/main/java/com/nikgapps/app/utils/NotificationUtility.kt": "9a6ff5cdc96321653823310fd09507eb8ecdd175be56ef62d380e51c161c15ab",
+    "app/src/main/java/com/nikgapps/app/utils/constants/ApplicationConstants.kt": "170d98104e94533df22499bc097fd3ad6b4ec6fcce8f75adb6769ee45271333f",
+    "app/src/main/java/com/nikgapps/app/utils/constants/PermissionConstants.kt": "946e9ba091ee1e32c69bfa3bf6b57bcef4ffcace2b8e2113ebaaa2967bf45f8a",
+    "app/src/main/java/com/nikgapps/app/utils/permissions/Permissions.kt": "6c9f0e9120353aee0ea17a574e4eb12e057dfe988fe8b6829211a92fc8c0fc9a",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/screen/PermissionsScreen.kt": "0cc6509d8d50d3f2af73ac66a14db413cf8f44ff50c2cefde9f8bd507cfc11e2",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/screen/HomeScreen.kt": "0bd7a37fcbdb92202600424aba394a5286b9a39259995522103d2953852bb837",
+    "app/src/main/java/com/nikgapps/dumps/UpdateAppCard.kt": "8ddb9fd3e3f7f3151ec6ba800f2a627c0cd3df4dbad23d080aa8a545e7d878e9",
+    "app/src/test/java/com/nikgapps/app/update/AppUpdateBrowserTest.kt": "5cc79cd9ff0335aa3fef7ff3d9674fbbefdfadf0cdc5c82927fa54829b0d688f"
+  }
+}

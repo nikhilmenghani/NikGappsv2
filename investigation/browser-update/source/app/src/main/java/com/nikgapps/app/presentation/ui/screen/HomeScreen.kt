@@ -1,0 +1,1231 @@
+package com.nikgapps.app.presentation.ui.screen
+
+import androidx.compose.runtime.setValue
+
+import androidx.compose.runtime.getValue
+
+import com.nikgapps.app.presentation.ui.component.AppIcons
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
+import com.nikgapps.app.network.RegistryProjectContent
+import com.nikgapps.app.registry.RegistryAvailability
+import com.nikgapps.app.presentation.ui.component.ProjectGlassSurface
+import com.nikgapps.app.presentation.ui.component.cards.OutdatedProjectsSection
+import com.nikgapps.app.presentation.ui.component.HeaderActionPill
+import com.nikgapps.app.presentation.ui.component.AdaptiveTopAppBar
+import com.nikgapps.app.presentation.ui.component.LocalAccountMembership
+import com.nikgapps.app.presentation.ui.component.ProjectCreationUnavailableDialog
+import androidx.compose.runtime.collectAsState
+import com.nikgapps.app.network.LocalInternetAvailable
+import com.nikgapps.app.analytics.AppAnalytics
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawWithContent
+import kotlin.math.roundToInt
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenuItem
+import com.nikgapps.app.data.canCreateProject
+import com.nikgapps.app.data.REGULAR_PROJECT_LIMIT
+import com.nikgapps.app.data.ProjectLimitReachedException
+import androidx.compose.material.icons.outlined.FolderSpecial
+import androidx.compose.material3.AlertDialog
+import com.nikgapps.app.presentation.ui.component.GlassButton as Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.History
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.ui.res.painterResource
+import com.nikgapps.R
+import com.nikgapps.app.data.DisplayPrefs
+import com.nikgapps.app.data.ThemePreference
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import com.nikgapps.app.presentation.ui.component.GlassTonalButton as FilledTonalButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.key
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import com.nikgapps.app.registry.initialProjectDisplayOrder
+import com.nikgapps.app.registry.projectsInDisplayOrder
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.nikgapps.app.presentation.navigation.CREATE_PROJECT_REQUEST
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
+import androidx.work.WorkManager
+import com.nikgapps.MainActivity
+import com.nikgapps.app.data.AndroidVersion
+import com.nikgapps.app.data.Architecture
+import com.nikgapps.app.data.BuildProject
+import com.nikgapps.app.data.BuildProjectRepository
+import com.nikgapps.app.data.GithubPrefs
+import com.nikgapps.app.utils.network.EliteMembershipRepository
+import com.nikgapps.app.data.LatestBuildRepository
+import com.nikgapps.app.data.projectNameLimit
+import com.nikgapps.app.presentation.navigation.Screens
+import com.nikgapps.app.presentation.navigation.projectRoute
+import com.nikgapps.app.presentation.navigation.buildZipRoute
+import com.nikgapps.app.presentation.ui.component.HomeUpdateIndicator
+import com.nikgapps.app.registry.*
+import com.nikgapps.app.presentation.ui.component.RegistryReleaseBanner
+import com.nikgapps.app.presentation.ui.component.rememberRegistryReleaseNotice
+import com.nikgapps.app.registry.CatalogRepository
+import com.nikgapps.app.registry.catalogAndroidVersion
+import com.nikgapps.app.registry.duplicateCurrentProject
+import com.nikgapps.app.registry.unavailableProjectPackages
+import com.nikgapps.app.utils.AppDiagnostics
+import com.nikgapps.app.update.ChangelogDialog
+import com.nikgapps.app.update.ChangelogEntry
+import com.nikgapps.app.update.ChangelogRepository
+import com.nikgapps.app.update.ChangelogReadState
+import com.nikgapps.app.utils.network.VersionFetcher.fetchLatestVersion
+import com.nikgapps.app.utils.network.VersionFetcher
+import com.nikgapps.app.utils.network.VersionFetcher.isNewer
+import com.nikgapps.dumps.getCurrentVersion
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(navController: NavHostController, floatingBarBottomPadding: Dp = 0.dp) {
+    val isOnline = LocalInternetAvailable.current
+    val darkTheme = MaterialTheme.colorScheme.background.luminance() < .5f
+    var projectMenuId by remember { mutableStateOf<String?>(null) }
+    val projectMenuVisible = projectMenuId != null
+    val context = LocalActivity.current as MainActivity
+    val workManager = WorkManager.getInstance(context)
+    val currentVersion = remember { getCurrentVersion(context) }
+    var latestVersion by remember { mutableStateOf(currentVersion) }
+    var isLatestVersion by remember { mutableStateOf(true) }
+    var updateChangelog by remember { mutableStateOf<List<ChangelogEntry>>(emptyList()) }
+    var showUpdateChangelog by remember { mutableStateOf(false) }
+    var showMoreOptions by remember { mutableStateOf(false) }
+    var showHomeChangelog by rememberSaveable { mutableStateOf(false) }
+    var homeChangelog by remember { mutableStateOf<List<ChangelogEntry>>(emptyList()) }
+    var publishedChangelogVersion by remember { mutableStateOf(VersionFetcher.lastKnownVersion()) }
+    var changelogRefresh by remember { mutableStateOf(0) }
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        changelogRefresh++
+    }
+    LaunchedEffect(isOnline, changelogRefresh, showHomeChangelog) {
+        if (!showHomeChangelog) {
+            homeChangelog = ChangelogRepository.fetch(context, forceRefresh = isOnline)
+            if (isOnline) fetchLatestVersion().takeUnless { it == "Unknown" }?.let { publishedChangelogVersion = it }
+        }
+    }
+    val hasUnreadUpcomingChanges = ChangelogReadState.hasUnreadUpcoming(
+        homeChangelog, currentVersion, publishedChangelogVersion
+    )
+
+    val projectRepository = remember { BuildProjectRepository(context) }
+    val latestBuildRepository = remember { LatestBuildRepository(context) }
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var projects by remember { mutableStateOf(projectRepository.getProjects()) }
+    val registryRetryAt by RegistryAvailability.retryAtMillis.collectAsState()
+    var recoveryMessage by remember { mutableStateOf(projectRepository.recoveryBackup() != null) }
+    val recoveryExport = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) runCatching {
+            val backup = projectRepository.recoveryBackup() ?: error("No recovery data")
+            (context.contentResolver.openOutputStream(uri) ?: error("Cannot open recovery destination"))
+                .use { it.write(backup.toByteArray(Charsets.UTF_8)) }
+        }.onFailure { Toast.makeText(context, "Cannot export recovery data: ${it.message}", Toast.LENGTH_LONG).show() }
+    }
+    if (recoveryMessage) Dialog(onDismissRequest = { recoveryMessage = false }) {
+        com.nikgapps.app.presentation.ui.component.GlassSurface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+            Column {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Some projects need recovery", style = MaterialTheme.typography.titleLarge)
+                    Text("Valid projects are still available. Damaged project data has been preserved. Export it for recovery before recreating missing projects.",
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilledTonalButton(onClick = { recoveryMessage = false },
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        Text("Close", style = MaterialTheme.typography.labelMedium)
+                    }
+                    FilledTonalButton(onClick = { recoveryExport.launch("nikgapps-project-recovery.json") },
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        Text("Export recovery data", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
+    }
+    var showCreateProject by remember { mutableStateOf(false) }
+    var creationBlockedUntil by remember { mutableStateOf<Long?>(null) }
+    fun creationBlocked(): Boolean {
+        val retryAt = RegistryAvailability.activeRetryAt() ?: return false
+        creationBlockedUntil = retryAt
+        showCreateProject = false
+        return true
+    }
+    creationBlockedUntil?.let { ProjectCreationUnavailableDialog(it) { creationBlockedUntil = null } }
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val homeEntry = remember(navController, currentBackStackEntry) { navController.getBackStackEntry(Screens.Home.name) }
+    val createRequested by homeEntry.savedStateHandle.getStateFlow(CREATE_PROJECT_REQUEST, false).collectAsState()
+    var projectToEdit by remember { mutableStateOf<BuildProject?>(null) }
+    var projectToDelete by remember { mutableStateOf<BuildProject?>(null) }
+    var metadataByProject by remember { mutableStateOf<Map<String, RegistryMetadata>>(emptyMap()) }
+    var updatesByProject by remember { mutableStateOf<Map<String, ProjectUpdate>>(emptyMap()) }
+    val releaseNotice = rememberRegistryReleaseNotice(isOnline, projects, updatesByProject, metadataByProject)
+    var unavailableByProject by remember { mutableStateOf<Map<String, Set<String>>>(emptyMap()) }
+    var projectDisplayOrder by remember { mutableStateOf<List<String>?>(null) }
+    var projectReboundOffset by remember { mutableStateOf(0.dp) }
+    val membership = LocalAccountMembership.current
+    val isElite = membership.isElite
+    val eliteMembershipResolved = membership.resolved
+    var showProjectLimit by remember { mutableStateOf(false) }
+    var showEliteFeatures by remember { mutableStateOf(false) }
+    LaunchedEffect(createRequested, eliteMembershipResolved, registryRetryAt) {
+        if (createRequested && RegistryAvailability.activeRetryAt() != null) {
+            homeEntry.savedStateHandle[CREATE_PROJECT_REQUEST] = false
+            creationBlocked()
+        } else if (createRequested && eliteMembershipResolved) {
+            homeEntry.savedStateHandle[CREATE_PROJECT_REQUEST] = false
+            if (canCreateProject(projectRepository.getProjects().size, isElite)) showCreateProject = true
+            else showProjectLimit = true
+        }
+    }
+    LaunchedEffect(registryRetryAt, showCreateProject) {
+        if (showCreateProject) creationBlocked()
+    }
+    val projectScope = rememberCoroutineScope()
+    val catalogRepository = remember { CatalogRepository(context.cacheDir) }
+    var pendingExport by remember { mutableStateOf<String?>(null) }
+    val projectExport = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
+        val config = pendingExport; pendingExport = null
+        if (uri != null && config != null) projectScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(config.toByteArray(Charsets.UTF_8)) }
+                        ?: error("Cannot save config")
+                }
+                Toast.makeText(context, "Config exported", Toast.LENGTH_SHORT).show()
+            } catch (cancelled: CancellationException) { throw cancelled }
+              catch (error: Exception) { Toast.makeText(context, error.message ?: "Export failed", Toast.LENGTH_LONG).show() }
+        }
+    }
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    androidx.compose.runtime.DisposableEffect(lifecycle) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) projects = projectRepository.getProjects()
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(projects, isOnline) {
+        val results = mutableMapOf<String, Set<String>>()
+        val updates = mutableMapOf<String, ProjectUpdate>()
+        val checkedMetadata = mutableMapOf<String, RegistryMetadata>()
+        fun display(saved: BuildProject, metadata: RegistryMetadata) {
+                checkedMetadata[saved.id] = metadata
+                results[saved.id] = unavailableProjectPackages(saved, metadata)
+                updates[saved.id] = projectUpdate(saved, metadata)
+        }
+        fun publish() {
+            unavailableByProject = results.toMap()
+            updatesByProject = updates.toMap()
+            metadataByProject = checkedMetadata.toMap()
+        }
+        fun initializeOrder() {
+            if (projectDisplayOrder == null) projectDisplayOrder = initialProjectDisplayOrder(projects, results, updates)
+        }
+        val grouped = projects.groupBy { Triple(catalogAndroidVersion(it.androidVersion.displayName), it.defaultChannel, it.architecture.value) }
+        // Show saved status even offline, before any network requests start.
+        grouped.forEach { (target, savedProjects) ->
+            catalogRepository.cached(target.first, target.second, target.third)?.let { metadata ->
+                savedProjects.forEach { display(it, metadata) }
+            }
+        }
+        publish()
+        // Never expose the unsorted saved list while compatibility is still unknown.
+        if (checkedMetadata.size == projects.size || !isOnline) initializeOrder()
+        if (!isOnline) return@LaunchedEffect
+        grouped.forEach { (target, savedProjects) ->
+            try {
+                // Fresh snapshots are reused for 30 minutes; stale ones refresh in the background.
+                val metadata = catalogRepository.load(target.first, target.second, target.third)
+                savedProjects.forEach { display(it, metadata) }
+                publish()
+            } catch (cancelled: CancellationException) { throw cancelled }
+              catch (_: Exception) { /* Keep the last known status if refresh fails. */ }
+        }
+        initializeOrder() // Also unblock missing-cache and failed-refresh cases.
+    }
+
+    LaunchedEffect(Unit) {
+        latestVersion = withContext(Dispatchers.IO) { fetchLatestVersion() }
+        isLatestVersion = latestVersion == "Unknown" || !isNewer(latestVersion, currentVersion)
+        if (!isLatestVersion) {
+            updateChangelog = ChangelogRepository.between(
+                ChangelogRepository.fetch(context, forceRefresh = true),
+                installedVersion = currentVersion,
+                targetVersion = latestVersion
+            )
+        }
+    }
+
+    fun downloadUpdate() {
+        showUpdateChangelog = false
+        com.nikgapps.app.update.AppUpdateBrowser.open(context, latestVersion)
+    }
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            modifier = Modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                .blur(if (projectMenuVisible) 6.dp else 0.dp)
+                .drawWithContent {
+                    drawContent()
+                    if (projectMenuVisible) drawRect(Color.Black.copy(alpha = .20f))
+                },
+            topBar = {
+                AdaptiveTopAppBar(
+                    title = "Projects", actionCount = if (isLatestVersion) 4 else 5,
+                    actions = {
+                        HeaderActionPill {
+                        if (!isLatestVersion) {
+                            HomeUpdateIndicator(
+                                latestVersion = latestVersion,
+                                isDownloading = false,
+                                onClick = { showUpdateChangelog = true }
+                            )
+                        }
+                        IconToggleButton(
+                            checked = darkTheme,
+                            onCheckedChange = { dark ->
+                                DisplayPrefs.theme = if (dark) ThemePreference.DARK.ordinal else ThemePreference.LIGHT.ordinal
+                            },
+                            modifier = Modifier.size(48.dp),
+                            colors = IconButtonDefaults.iconToggleButtonColors(
+                                containerColor = Color.Transparent,
+                                checkedContainerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                checkedContentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+                        ) {
+                            Crossfade(targetState = darkTheme, animationSpec = tween(180), label = "Theme icon") { dark ->
+                                Icon(painterResource(if (dark) R.drawable.ic_dark_mode_rounded else R.drawable.ic_light_mode_rounded),
+                                    contentDescription = if (dark) "Switch to light mode" else "Switch to dark mode",
+                                    modifier = Modifier.size(24.dp))
+                            }
+                        }
+                        IconButton(onClick = { showHomeChangelog = true },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = if (hasUnreadUpcomingChanges) MaterialTheme.colorScheme.primaryContainer
+                                    else androidx.compose.ui.graphics.Color.Transparent,
+                                contentColor = if (hasUnreadUpcomingChanges) MaterialTheme.colorScheme.onPrimaryContainer
+                                    else MaterialTheme.colorScheme.onSurfaceVariant)) {
+                            BadgedBox(badge = { if (hasUnreadUpcomingChanges) Badge() }) {
+                                Icon(Icons.Outlined.History,
+                                    if (hasUnreadUpcomingChanges) "Changelog, unread upcoming changes" else "Changelog")
+                            }
+                        }
+                        com.nikgapps.app.presentation.navigation.HelpIconButton(reserveTrailingSlot = false)
+                        Box {
+                            IconButton(onClick = { showMoreOptions = true }) {
+                                Icon(Icons.Outlined.MoreVert, contentDescription = "More options")
+                            }
+                            com.nikgapps.app.presentation.ui.component.GlassDropdownMenu(
+                                expanded = showMoreOptions, onDismissRequest = { showMoreOptions = false }) {
+                                DropdownMenuItem(text = { Text("Logs") }, leadingIcon = { Icon(Icons.Default.Terminal, null) },
+                                    onClick = {
+                                        showMoreOptions = false
+                                        navController.navigate(Screens.Logs.name) { launchSingleTop = true }
+                                    })
+                            }
+                        }
+                        }
+                    },
+                    scrollBehavior = topBarScrollBehavior
+                )
+            }
+        ) { paddingValues ->
+            if (projects.isEmpty()) {
+                Column(Modifier.fillMaxSize().padding(paddingValues)
+                    .padding(bottom = floatingBarBottomPadding).padding(16.dp)) {
+                    RegistryProjectContent(registryRetryAt, Modifier.fillMaxWidth().weight(1f)) {
+                        EmptyProjects(Modifier.fillMaxSize().padding(16.dp))
+                    }
+                }
+            } else {
+                Box(Modifier.fillMaxSize().padding(paddingValues)) {
+                RegistryProjectContent(registryRetryAt, Modifier.fillMaxSize()) {
+                if (projectDisplayOrder == null) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                } else LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(top = 8.dp, bottom = floatingBarBottomPadding + 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item(key = "release-notice") {
+                        RegistryReleaseBanner(releaseNotice)
+                    }
+                    val (outdatedProjects, activeProjects) = projectsInDisplayOrder(projects, projectDisplayOrder.orEmpty())
+                        .partition { isProjectOutdated(unavailableByProject[it.id], updatesByProject[it.id]) }
+                    val projectCard: @Composable (BuildProject, Modifier, Boolean) -> Unit = { project, modifier, interactive ->
+                        val latestBuild = latestBuildRepository.get(project.id)
+                        Box(Modifier.padding(horizontal = 16.dp).then(modifier)) {
+                        ProjectCard(
+                            project = project,
+                            interactive = interactive,
+                            onMenuVisibilityChanged = { visible ->
+                                if (visible) projectMenuId = project.id
+                                else if (projectMenuId == project.id) projectMenuId = null
+                            },
+                            unavailable = unavailableByProject[project.id],
+                            update = updatesByProject[project.id],
+                            onDismissUpdate = { releaseId -> projects = projectRepository.mutateProject(project.id) { it.copy(
+                                dismissedReleaseId = releaseId) } },
+                            onDismissAllUpdates = { releaseId ->
+                                val target = metadataByProject[project.id]?.releaseIndex?.releases?.firstOrNull { it.id == releaseId }
+                                if (target != null) projects = projectRepository.mutateProjects { saved ->
+                                    dismissProjectsThroughRelease(saved, target, metadataByProject)
+                                }
+                            },
+                            onExport = {
+                                val loaded = metadataByProject[project.id]
+                                if (loaded != null) {
+                                    pendingExport = recoveryProjectConfig(project, loaded)
+                                    projectExport.launch("${project.name}.config")
+                                }
+                            },
+                            onOpen = {
+                                AppDiagnostics.info("project", "opened", mapOf("project" to project.id.take(8)))
+                                navController.navigate(projectRoute(project.id)) { launchSingleTop = true }
+                            },
+                            onBuild = {
+                                if (isOnline && unavailableByProject[project.id]?.isEmpty() == true && updatesByProject[project.id]?.kind != ProjectUpdateKind.INCOMPATIBLE)
+                                    navController.navigate(buildZipRoute(project.id, latest = updatesByProject[project.id]?.kind == ProjectUpdateKind.AVAILABLE))
+                                else Toast.makeText(
+                                    context,
+                                    "Internet connection is required before building the ZIP",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            },
+                            onShareZip = latestBuild?.let { saved -> { context.sharePublishedZip(saved) } },
+                            onDuplicate = {
+                                if (creationBlocked()) return@ProjectCard
+                                if (!eliteMembershipResolved || !canCreateProject(projectRepository.getProjects().size, isElite)) {
+                                    if (eliteMembershipResolved) showProjectLimit = true
+                                    else Toast.makeText(context, "Checking Elite membership; try again shortly", Toast.LENGTH_SHORT).show()
+                                    return@ProjectCard
+                                }
+                                if (updatesByProject[project.id]?.kind == ProjectUpdateKind.INCOMPATIBLE) {
+                                    Toast.makeText(context, "Export this config and recreate the project using Import config.", Toast.LENGTH_LONG).show()
+                                    return@ProjectCard
+                                }
+                                projectScope.launch {
+                                    runCatching {
+                                        val metadata = catalogRepository.load(catalogAndroidVersion(project.androidVersion.displayName),
+                                            project.defaultChannel, project.architecture.value)
+                                        if (creationBlocked()) return@launch
+                                        projectRepository.addProject(duplicateCurrentProject(project, metadata, projectNameLimit(isElite)), isElite)
+                                    }.onSuccess { savedProjects ->
+                                        projects = savedProjects
+                                        AppDiagnostics.info("project", "duplicated", mapOf("source" to project.id.take(8)))
+                                    }.onFailure {
+                                        if (it is ProjectLimitReachedException) showProjectLimit = true
+                                        else Toast.makeText(context, "Cannot check the latest package list; try again online",
+                                            Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                            onEdit = {
+                                if (unavailableByProject[project.id]?.isNotEmpty() == true || updatesByProject[project.id]?.kind == ProjectUpdateKind.INCOMPATIBLE) return@ProjectCard
+                                AppDiagnostics.info("project", "edit_opened", mapOf("project" to project.id.take(8)))
+                                projectToEdit = project
+                            },
+                            onDelete = {
+                                AppDiagnostics.info("project", "delete_requested", mapOf("project" to project.id.take(8)))
+                                projectToDelete = project
+                            }
+                        )
+                        }
+                    }
+                    items(activeProjects, key = { it.id }) { project ->
+                        val rebound = Modifier.absoluteOffset { IntOffset(0, projectReboundOffset.roundToPx()) }
+                        projectCard(project, rebound, true)
+                    }
+                    if (outdatedProjects.isNotEmpty()) {
+                        item(key = "outdated-projects") {
+                            OutdatedProjectsSection(outdatedProjects.size, onReboundChanged = { projectReboundOffset = it }) { index, modifier, interactive ->
+                                val project = outdatedProjects[index]
+                                key(project.id) { projectCard(project, modifier, interactive) }
+                            }
+                        }
+                    }
+                }
+                }
+                }
+            }
+        }
+    if (showHomeChangelog) ChangelogDialog(
+        title = "Changelog", entries = homeChangelog,
+        onDismiss = { showHomeChangelog = false }
+    )
+    if (showUpdateChangelog) {
+        ChangelogDialog(
+            title = "WhatÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s new in $latestVersion",
+            entries = updateChangelog,
+            onDismiss = { showUpdateChangelog = false },
+            onUpdate = ::downloadUpdate
+        )
+    }
+
+    if (showProjectLimit) Dialog(onDismissRequest = { showProjectLimit = false }) {
+        com.nikgapps.app.presentation.ui.component.GlassSurface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+            Column {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Project limit reached", style = MaterialTheme.typography.titleLarge)
+                    Text("Regular accounts can keep up to $REGULAR_PROJECT_LIMIT projects, including copies and outdated projects. Delete a project or upgrade to Elite to create more. Your existing projects are kept.",
+                        style = MaterialTheme.typography.bodyMedium)
+                }
+                HorizontalDivider()
+                Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilledTonalButton(onClick = { showProjectLimit = false },
+                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp)) { Text("Close") }
+                    FilledTonalButton(onClick = { showProjectLimit = false; showEliteFeatures = true },
+                        modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp)) { Text("Elite features") }
+                }
+            }
+        }
+    }
+    if (showEliteFeatures) com.nikgapps.app.presentation.ui.component.EliteFeaturesDialog(isElite) {
+        showEliteFeatures = false
+    }
+
+    if (showCreateProject) {
+        ProjectSheet(
+            onDismiss = { showCreateProject = false },
+            onSave = { project ->
+                if (creationBlocked()) return@ProjectSheet
+                try { projects = projectRepository.addProject(project, isElite) }
+                catch (_: ProjectLimitReachedException) {
+                    showProjectLimit = true
+                    return@ProjectSheet
+                }
+                AppDiagnostics.info("project", "created", mapOf(
+                    "project" to project.id.take(8),
+                    "android" to project.androidVersion.displayName,
+                    "architecture" to project.architecture.value
+                ))
+                AppAnalytics.track("project_created", mapOf(
+                    "android_version" to project.androidVersion.displayName,
+                    "architecture" to project.architecture.value
+                ))
+                showCreateProject = false
+                navController.navigate(projectRoute(project.id)) { launchSingleTop = true }
+            }
+        )
+    }
+    projectToEdit?.let { project ->
+        ProjectSheet(
+            project = project,
+            onDismiss = { projectToEdit = null },
+            onSave = { updatedProject ->
+                projects = projectRepository.updateProject(updatedProject)
+                AppDiagnostics.info("project", "updated", mapOf("project" to updatedProject.id.take(8)))
+                projectToEdit = null
+            }
+        )
+    }
+    projectToDelete?.let { project ->
+        AlertDialog(
+            onDismissRequest = { projectToDelete = null },
+            title = { Text("Delete project?") },
+            text = { Text("\"${project.name}\" will be removed from this device.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        projects = projectRepository.deleteProject(project.id)
+                        latestBuildRepository.remove(project.id)
+                        AppDiagnostics.info("project", "deleted", mapOf("project" to project.id.take(8)))
+                        projectToDelete = null
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { projectToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun EmptyProjects(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("No projects yet", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Tap + to create a Google Apps project and choose its Android version and architecture.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun ProjectCard(
+    project: BuildProject,
+    onMenuVisibilityChanged: (Boolean) -> Unit,
+    unavailable: Set<String>?,
+    update: ProjectUpdate?,
+    onDismissUpdate: (String) -> Unit,
+    onDismissAllUpdates: (String) -> Unit,
+    onExport: () -> Unit,
+    onOpen: () -> Unit,
+    onBuild: () -> Unit,
+    onShareZip: (() -> Unit)?,
+    onDuplicate: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    interactive: Boolean = true
+) {
+    var dismissUpdate by remember { mutableStateOf(false) }
+    var dismissalReleaseId by remember { mutableStateOf<String?>(null) }
+    if (dismissUpdate) androidx.compose.ui.window.Dialog(onDismissRequest = { dismissUpdate = false }) {
+        com.nikgapps.app.presentation.ui.component.GlassSurface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+            Column {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Dismiss this update for this project?", style = MaterialTheme.typography.titleLarge)
+                    Text("Keep your current release, or dismiss this update for this project or all compatible projects on the same Android version, channel, and architecture awaiting this release or an older one. Newer releases will appear again.",
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    androidx.compose.material3.FilledTonalButton(onClick = { dismissUpdate = false },
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        Text("Keep", style = MaterialTheme.typography.labelMedium)
+                    }
+                    androidx.compose.material3.FilledTonalButton(onClick = {
+                        dismissalReleaseId?.let(onDismissUpdate)
+                        dismissUpdate = false
+                    }, modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        Text("Dismiss", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+                androidx.compose.material3.FilledTonalButton(onClick = {
+                    dismissalReleaseId?.let(onDismissAllUpdates)
+                    dismissUpdate = false
+                }, modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 12.dp).heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(horizontal = 10.dp)) {
+                    Text("Dismiss for all projects", style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+    }
+    var showProjectMenu by remember { mutableStateOf(false) }
+    val useRadialMenu = com.nikgapps.app.data.DisplayPrefs.useRadialProjectMenu
+    LaunchedEffect(showProjectMenu, useRadialMenu) {
+        onMenuVisibilityChanged(showProjectMenu && useRadialMenu)
+    }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose { onMenuVisibilityChanged(false) }
+    }
+    var menuTouch by remember { mutableStateOf(Offset.Zero) }
+    val outdated = isProjectOutdated(unavailable, update)
+    val liquidGlass = DisplayPrefs.useLiquidGlass
+    val lightGlass = liquidGlass && MaterialTheme.colorScheme.background.luminance() >= .5f
+    val canBuild = project.selectedAppIds.isNotEmpty() && unavailable?.isEmpty() == true && !outdated
+    var actionsExpanded by rememberSaveable(project.id) { mutableStateOf(false) }
+    Box {
+        ProjectGlassSurface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .semantics {
+                stateDescription = when {
+                    outdated -> "Outdated project"
+                    update?.kind == ProjectUpdateKind.AVAILABLE -> "Update available"
+                    else -> "Up to date"
+                }
+            }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    menuTouch = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position
+                }
+            }
+            .combinedClickable(
+                enabled = interactive,
+                onClick = { if (outdated) actionsExpanded = !actionsExpanded else onOpen() },
+                onClickLabel = if (outdated) {
+                    if (actionsExpanded) "Hide configuration details" else "Show configuration details"
+                } else "Open project",
+                onLongClick = { showProjectMenu = true }
+            )
+    ) {
+        Column(
+            modifier = Modifier.animateContentSize().padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(Modifier.width(44.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Surface(
+                    modifier = Modifier.size(44.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    color = when {
+                        outdated -> MaterialTheme.colorScheme.errorContainer
+                        update?.kind == ProjectUpdateKind.AVAILABLE -> MaterialTheme.colorScheme.primary
+                        liquidGlass -> MaterialTheme.colorScheme.primaryContainer
+                        else -> MaterialTheme.colorScheme.surfaceContainerHighest
+                    }
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Outlined.FolderSpecial,
+                            contentDescription = null,
+                            modifier = Modifier.size(if (liquidGlass) 28.dp else 24.dp),
+                            tint = when {
+                                outdated && lightGlass -> MaterialTheme.colorScheme.error
+                                outdated -> MaterialTheme.colorScheme.onErrorContainer
+                                update?.kind == ProjectUpdateKind.AVAILABLE -> MaterialTheme.colorScheme.onPrimary
+                                lightGlass -> MaterialTheme.colorScheme.primary
+                                liquidGlass -> MaterialTheme.colorScheme.onPrimaryContainer
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    }
+                }
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f).heightIn(min = 44.dp),
+                    verticalArrangement = Arrangement.Center) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(project.name, Modifier.weight(1f).alignByBaseline(),
+                            style = MaterialTheme.typography.titleMedium, maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Text(project.androidVersion.displayName, Modifier.alignByBaseline(),
+                            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "${project.selectedAppIds.size} apps Ãƒâ€šÃ‚Â· ${
+                            remember(project.createdAt) {
+                                SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                                    .format(Date(project.createdAt))
+                            }
+                        }",
+                        modifier = Modifier.weight(1f).alignByBaseline(),
+                        maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text("API ${project.androidVersion.apiLevel} Ãƒâ€šÃ‚Â· ${project.architecture.displayName} build",
+                        Modifier.alignByBaseline(), style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            if (outdated && actionsExpanded) Text(update?.message ?: "Export this configuration, review unavailable packages, and import it to recreate your project.", style = MaterialTheme.typography.bodySmall)
+
+        }
+    }
+        Box(Modifier.absoluteOffset { IntOffset(menuTouch.x.roundToInt(), menuTouch.y.roundToInt()) }.size(0.dp)) {
+        if (showProjectMenu) ProjectContextMenu(project.name, buildList {
+            add(ProjectRadialAction(if (outdated) "Review project" else "Open project", Icons.Default.FolderOpen,
+                compactLabel = if (outdated) "Review" else "Open",
+                onClick = onOpen))
+            if (canBuild) add(ProjectRadialAction(if (update?.kind == ProjectUpdateKind.AVAILABLE) "Build latest ZIP" else "Create ZIP", Icons.Default.Inventory2,
+                compactLabel = "Build\nZIP",
+                onClick = onBuild))
+            onShareZip?.let { share ->
+                add(ProjectRadialAction("Share ZIP", Icons.Default.Share, compactLabel = "Share\nZIP", onClick = share))
+            }
+            if (outdated) add(ProjectRadialAction("Export config", Icons.Default.ContentCopy, compactLabel = "Export\nconfig",
+                onClick = onExport))
+            if (update?.kind == ProjectUpdateKind.AVAILABLE) {
+                add(ProjectRadialAction("Dismiss this update", Icons.Default.Close, compactLabel = "Dismiss\nupdate",
+                    onClick = { dismissalReleaseId = update.releaseId; dismissUpdate = true }))
+            }
+            add(ProjectRadialAction("Copy project", Icons.Default.ContentCopy, compactLabel = "Copy",
+                enabled = !outdated, onClick = onDuplicate))
+            add(ProjectRadialAction("Edit project", Icons.Default.Edit, compactLabel = "Edit",
+                enabled = unavailable?.isEmpty() == true && !outdated, onClick = onEdit))
+            add(ProjectRadialAction("Delete project", Icons.Default.Delete, destructive = true, compactLabel = "Delete",
+                onClick = onDelete))
+        }, useRadial = useRadialMenu,
+            onDismiss = { showProjectMenu = false })
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProjectSheet(
+    project: BuildProject? = null,
+    onDismiss: () -> Unit,
+    onSave: (BuildProject) -> Unit
+) {
+    val context = LocalActivity.current ?: return
+    val creationScope = rememberCoroutineScope()
+    var importError by remember { mutableStateOf<String?>(null) }
+    var configAttempted by remember { mutableStateOf(false) }
+    var loadingConfig by remember { mutableStateOf(false) }
+    var validatedConfig by remember { mutableStateOf<BuildProject?>(null) }
+    var configFileName by remember { mutableStateOf<String?>(null) }
+    var savingProject by remember { mutableStateOf(false) }
+    val nameFocusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    var sheetVisible by remember { mutableStateOf(false) }
+    var name by remember(project) { mutableStateOf(project?.name.orEmpty()) }
+    val previewNonElite = com.nikgapps.app.data.DisplayPrefs.nonElitePreviewEnabled
+    var eliteNameLimit by remember(GithubPrefs.username, previewNonElite) { mutableStateOf(false) }
+    LaunchedEffect(GithubPrefs.username, previewNonElite) {
+        eliteNameLimit = try { EliteMembershipRepository.isElite(GithubPrefs.username) }
+        catch (cancelled: CancellationException) { throw cancelled }
+        catch (_: Exception) { false }
+    }
+    val nameLimit = projectNameLimit(eliteNameLimit)
+    var androidVersion by remember(project) { mutableStateOf(project?.androidVersion ?: AndroidVersion.ANDROID_16) }
+    val architecture = project?.architecture ?: Architecture.ARM64
+    val configImport = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) creationScope.launch {
+            configAttempted = true
+            loadingConfig = true
+            validatedConfig = null
+            importError = null
+            configFileName = null
+            val targetAndroid = androidVersion
+            try {
+                val filename = withContext(Dispatchers.IO) {
+                    context.contentResolver.query(uri,
+                        arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                        val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                        if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
+                    }
+                }
+                configFileName = filename
+                val validated = withContext(Dispatchers.IO) {
+                    require(filename?.endsWith(".config", ignoreCase = true) == true) { "Select a .config file" }
+                    val bytes = context.contentResolver.openInputStream(uri)?.use { stream ->
+                        val output = java.io.ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        while (output.size() <= 262144) {
+                            val read = stream.read(buffer, 0, minOf(buffer.size, 262145 - output.size()))
+                            if (read <= 0) break
+                            output.write(buffer, 0, read)
+                        }
+                        output.toByteArray()
+                    } ?: error("Cannot open config")
+                    require(bytes.size <= 262144) { "Config file is too large" }
+                    val text = bytes.toString(Charsets.UTF_8)
+                    val metadata = CatalogRepository(context.cacheDir).load(catalogAndroidVersion(targetAndroid.displayName),
+                        "stable", architecture.value, forceRefresh = true)
+                    require(!metadata.fromCache) { "Connect to the internet to validate the latest configuration." }
+                    val template = AndroidBuilderAssetSource(context, metadata.builderAssets)
+                        .registryAsset(RegistryZipAssembler.CONFIG_TEMPLATE).decodeToString()
+                    val candidate = BuildProject(name = "Config", androidVersion = targetAndroid, architecture = architecture,
+                        createdReleaseId = metadata.release?.id)
+                    NikGappsConfigImporter.forProject(text, template, candidate, metadata)
+                }
+                require(androidVersion == targetAndroid) { "Android version changed. Load the config again." }
+                validatedConfig = validated
+            } catch (cancelled: CancellationException) { throw cancelled }
+              catch (error: Exception) { importError = error.message ?: "Unable to import config" }
+              finally { loadingConfig = false }
+        }
+    }
+    LaunchedEffect(androidVersion) {
+        if (validatedConfig != null && validatedConfig?.androidVersion != androidVersion) {
+            validatedConfig = null
+            importError = "Android version changed. Remove or reload the config."
+        }
+    }
+
+    var metadataVersions by remember { mutableStateOf<Set<AndroidVersion>?>(null) }
+    LaunchedEffect(project) {
+        sheetVisible = true
+        if (project == null) {
+            // Let the top sheet begin its entrance before showing the IME. Since
+            // the sheet is top-anchored, the inset animation cannot move it.
+            delay(120)
+            nameFocusRequester.requestFocus()
+            keyboard?.show()
+        }
+    }
+    LaunchedEffect(Unit) {
+        metadataVersions = runCatching { CatalogRepository(context.cacheDir).load() }
+            .getOrNull()?.let { metadata ->
+            val published = metadata.releaseIndex?.releases?.map { it.androidVersion }?.toSet()
+                ?: setOf(metadata.catalog.androidVersion)
+            AndroidVersion.entries.filterTo(mutableSetOf()) {
+                catalogAndroidVersion(it.displayName) in published
+            }
+        }.orEmpty()
+    }
+    val selectableVersions = when {
+        metadataVersions == null -> null
+        else -> AndroidVersion.entries.filter { it in metadataVersions.orEmpty() }
+    }
+    LaunchedEffect(selectableVersions) {
+        selectableVersions?.let { versions ->
+            if (androidVersion !in versions && versions.isNotEmpty()) androidVersion = versions.last()
+        }
+    }
+
+    fun saveProject() {
+        if (name.isBlank() || selectableVersions.isNullOrEmpty()) return
+        if (loadingConfig || (configAttempted && (validatedConfig == null || importError != null))) return
+        keyboard?.hide()
+        val savedName = name.trim()
+        // Preserve existing longer names when editing other fields; don't silently truncate them.
+        if (savedName.length > nameLimit && savedName != project?.name?.trim()) {
+            Toast.makeText(context, "Project names can have up to $nameLimit characters", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (savingProject) return
+        savingProject = true
+        creationScope.launch {
+            try {
+                val candidate = project?.copy(name = savedName, androidVersion = androidVersion, architecture = architecture)
+                    ?: BuildProject(name = savedName, androidVersion = androidVersion, architecture = architecture)
+                val platformChanged = project != null && (candidate.androidVersion != project.androidVersion || candidate.architecture != project.architecture)
+                val saved = if (project != null && !platformChanged) candidate else if (validatedConfig != null)
+                    validatedConfig!!.copy(name = savedName) else withContext(Dispatchers.IO) {
+                    val metadata = CatalogRepository(context.cacheDir).load(catalogAndroidVersion(candidate.androidVersion.displayName),
+                        candidate.defaultChannel, architecture.value, forceRefresh = true)
+                    require(!metadata.fromCache) { "Connect to the internet to validate the latest configuration." }
+                    candidate.rebasePlatform(metadata)
+                }
+                onSave(saved)
+            } catch (cancelled: CancellationException) { throw cancelled }
+              catch (error: Exception) {
+                  importError = error.message ?: "Cannot save project"
+                  Toast.makeText(context, importError, Toast.LENGTH_LONG).show()
+              }
+              finally { savingProject = false }
+        }
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.42f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                )
+        ) {
+            AnimatedVisibility(
+                visible = sheetVisible,
+                enter = slideInVertically(initialOffsetY = { -it / 2 }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it / 2 }) + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .imePadding()
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {}
+                        ),
+                    shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 6.dp,
+                    shadowElevation = 8.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp, vertical = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (project == null) "Create project" else "Edit project",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer) {
+                Row(Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("ARM64 only", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            }
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it.take(nameLimit) },
+                label = { Text("Project name") },
+                shape = RoundedCornerShape(16.dp),
+                supportingText = { Text("${name.length}/$nameLimit${if (eliteNameLimit) " Ãƒâ€šÃ‚Â· Elite" else ""}") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { saveProject() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(nameFocusRequester)
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Android version", style = MaterialTheme.typography.labelLarge)
+                if (selectableVersions == null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Loading supported versionsÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else if (selectableVersions.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                    ) {
+                        val minimumSegmentWidth = 88.dp
+                        val availableWidth = (LocalConfiguration.current.screenWidthDp - 48).dp
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.width(
+                                maxOf(availableWidth, minimumSegmentWidth * selectableVersions.size)
+                            )
+                        ) {
+                            selectableVersions.forEachIndexed { index, option ->
+                                SegmentedButton(
+                                    selected = androidVersion == option,
+                                    enabled = !configAttempted && !loadingConfig && !savingProject,
+                                    onClick = { androidVersion = option },
+                                    shape = SegmentedButtonDefaults.itemShape(
+                                        index = index,
+                                        count = selectableVersions.size,
+                                        baseShape = RoundedCornerShape(16.dp)
+                                    ),
+                                    icon = {
+                                        SegmentedButtonDefaults.Icon(
+                                            active = androidVersion == option
+                                        )
+                                    }
+                                ) {
+                                    Text(option.displayName.removePrefix("Android "), maxLines = 1)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text(
+                        "No supported Android versions are currently available.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                Text(
+                    if (selectableVersions == null)
+                        "Checking published metadata"
+                    else
+                        "Versions with published metadata",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (project == null) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Package configuration Ãƒâ€šÃ‚Â· Optional", style = MaterialTheme.typography.labelLarge)
+                    Text("Load a config to preselect packages, or create an empty project.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (configAttempted || importError != null) Surface(shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface) {
+                        Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            if (loadingConfig) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                            else Icon(
+                                when {
+                                    importError != null -> Icons.Default.ErrorOutline
+                                    validatedConfig != null -> Icons.Default.CheckCircle
+                                    else -> AppIcons.Info
+                                },
+                                contentDescription = if (validatedConfig != null && importError == null) "Config loaded successfully" else null,
+                                modifier = Modifier.size(20.dp),
+                                tint = when {
+                                    importError != null -> MaterialTheme.colorScheme.error
+                                    validatedConfig != null -> if (MaterialTheme.colorScheme.surfaceContainerHigh.luminance() < .5f)
+                                        Color(0xFF81C995) else Color(0xFF1B6E32)
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                })
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(configFileName ?: "Selected config", style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                Text(importError ?: if (loadingConfig) "Checking the latest package definitionsÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
+                                    else "${validatedConfig?.selectedAppIds?.size ?: 0} packages preselected",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (importError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            if (configAttempted) Button(onClick = {
+                                configAttempted = false; validatedConfig = null; importError = null; configFileName = null
+                            }, enabled = !loadingConfig && !savingProject, shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError),
+                                contentPadding = PaddingValues(horizontal = 12.dp),
+                                modifier = Modifier.heightIn(min = 48.dp)) { Text("Remove") }
+                        }
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (project == null) FilledTonalButton(
+                    onClick = { keyboard?.hide(); configImport.launch(arrayOf("*/*")) },
+                    enabled = !savingProject && !loadingConfig && !selectableVersions.isNullOrEmpty(),
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (loadingConfig) "ValidatingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" else if (configAttempted) "Replace config" else "Load config",
+                        style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    onClick = ::saveProject,
+                    enabled = !savingProject && !loadingConfig && (!configAttempted || (validatedConfig != null && importError == null))
+                        && name.isNotBlank() && !selectableVersions.isNullOrEmpty(),
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (savingProject) "Creating projectÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" else if (project == null) "Create project" else "Save changes",
+                        style = MaterialTheme.typography.labelLarge)
+                }
+            }
+                    }
+                }
+            }
+        }
+    }
+}
