@@ -118,7 +118,7 @@ class FixtureInstrumentation : Instrumentation() {
                         AppTheme(activity, if (theme == "light") 0 else 1, dynamicColor = false, ready = true) {
                             ProjectsBackdrop {
                                 Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    Text("App icons", style = MaterialTheme.typography.headlineSmall)
+                                    Text("App icons", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
                                     for ((name, id) in listOf("Chrome" to "com.android.chrome", "Google Play services" to "com.google.android.gms", "Standard fallback" to "com.nikgapps.missing.fixture")) {
                                         ProjectGlassSurface(Modifier.fillMaxWidth()) {
                                             Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
