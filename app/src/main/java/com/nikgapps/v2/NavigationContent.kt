@@ -40,6 +40,7 @@ class StartupState {
 }
 
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
+    RegistryAvailability.initialize(activity)
     activity.setContent {
         val preferences = remember(activity.applicationContext) { AppearancePreferences(activity.applicationContext) }
         val connection = remember(activity.applicationContext) { NetworkConnection(activity.applicationContext) }

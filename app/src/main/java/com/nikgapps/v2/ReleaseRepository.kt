@@ -37,7 +37,7 @@ internal class ReleaseRepository(private val directory: File, private val http: 
             val bytes = target.readBytes()
             if (valid(bytes)) return bytes.toString(Charsets.UTF_8)
         }
-        val bytes = http.get("${RegistryPin.ROOT}/$path")
+        val bytes = http.get(RegistryDelivery.contents(path))
         if (!valid(bytes)) throw MetadataException("Pinned release checksum mismatch")
         check(directory.isDirectory || directory.mkdirs())
         val stage = File(directory, "$expected.tmp")

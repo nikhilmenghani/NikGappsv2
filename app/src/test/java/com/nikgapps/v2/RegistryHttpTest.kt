@@ -12,13 +12,13 @@ class RegistryHttpTest {
         OkHttpClient.Builder().addInterceptor { chain ->
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(code)
                 .message("test").body(body.toResponseBody()).build()
-        }.build())
+        }.build(), pause = {})
     @Test fun readsSuccessfulHttpsResponse() {
         assertEquals("fixture", transport().get("https://example.com/metadata").decodeToString())
     }
     @Test fun refusesCleartextBeforeSendingAnything() {
         var sent = false
-        val http = RegistryHttp(OkHttpClient.Builder().addInterceptor { sent = true; error("Must not run") }.build())
+        val http = RegistryHttp(OkHttpClient.Builder().addInterceptor { sent = true; error("Must not run") }.build(), pause = {})
         assertThrows(IllegalArgumentException::class.java) { http.get("http://example.com/metadata") }
         assertFalse(sent)
     }

@@ -2,6 +2,7 @@ package com.nikgapps.v2
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -10,31 +11,58 @@ import okhttp3.Request
 internal class NetworkResponseException(val statusCode: Int) : IOException("Server returned HTTP $statusCode")
 internal class MetadataSizeException : IOException("Metadata response exceeds the size limit")
 
-/** Shared HTTPS transport. Authentication, registry parsing and download retries are later checkpoints. */
+/** Bounded HTTPS reads. Credentials are scoped before each request; cooldowns are not retried. */
 internal class RegistryHttp(private val client: OkHttpClient = OkHttpClient.Builder()
     .connectTimeout(15, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS)
-    .callTimeout(30, TimeUnit.SECONDS).followSslRedirects(false).build()) {
+    .callTimeout(30, TimeUnit.SECONDS).followSslRedirects(false).build(),
+    private val cooldown: RegistryCooldown = RegistryAvailability.cooldown,
+    private val pause: (Long) -> Unit = { Thread.sleep(it) },
+    private val token: () -> String = { RegistryDelivery.userToken() },
+    private val maxAttempts: Int = 5) {
+    init { require(maxAttempts in 1..5) }
     fun get(url: String, maxBytes: Int = 32 * 1024 * 1024): ByteArray {
         require(maxBytes > 0)
         val address = url.toHttpUrl()
         require(address.isHttps) { "HTTPS is required" }
-        val request = Request.Builder().url(address).header("User-Agent", "NikGappsv2").build()
-        return client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw NetworkResponseException(response.code)
-            val body = response.body
-            if (body.contentLength() > maxBytes) throw MetadataSizeException()
-            body.byteStream().use { input ->
-                val output = ByteArrayOutputStream()
-                val buffer = ByteArray(8192)
-                while (true) {
-                    val count = input.read(buffer)
-                    if (count < 0) break
-                    if (output.size().toLong() + count > maxBytes) throw MetadataSizeException()
-                    output.write(buffer, 0, count)
+        val request = RegistryDelivery.prepare(Request.Builder().url(address).header("User-Agent", "NikGappsv2").build(), token)
+        for (attempt in 0 until maxAttempts) {
+            cooldown.requireAvailable(address)
+            try {
+                return client.newCall(request).execute().use { response ->
+                    RegistryRequestLimits.observe(response)
+                    if (RegistryDelivery.rateLimited(response)) throw RegistryRateLimitedException(
+                        cooldown.rateLimited(response.header("Retry-After"), response.header("X-RateLimit-Reset")))
+                    if (!response.isSuccessful) throw NetworkResponseException(response.code)
+                    val body = response.body
+                    if (body.contentLength() > maxBytes) throw MetadataSizeException()
+                    body.byteStream().use { input ->
+                        val output = ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        while (true) {
+                            val count = input.read(buffer)
+                            if (count < 0) break
+                            if (output.size().toLong() + count > maxBytes) throw MetadataSizeException()
+                            output.write(buffer, 0, count)
+                        }
+                        output.toByteArray()
+                    }
                 }
-                output.toByteArray()
+            } catch (failure: IOException) {
+                val retryable = when (failure) {
+                    is RegistryRateLimitedException, is RegistryAuthenticationException, is MetadataSizeException -> false
+                    is NetworkResponseException -> failure.statusCode in 500..599 || failure.statusCode == 429
+                    else -> !Thread.currentThread().isInterrupted
+                }
+                if (!retryable || attempt == maxAttempts - 1) throw failure
+            }
+            // The failed response/body has closed before any backoff. Cancellation must preserve interruption.
+            try { pause((1000L shl attempt).coerceAtMost(30_000)) }
+            catch (interrupted: InterruptedException) {
+                Thread.currentThread().interrupt()
+                throw InterruptedIOException("Registry request interrupted").apply { initCause(interrupted) }
             }
         }
+        error("Registry request did not complete")
     }
 }
 

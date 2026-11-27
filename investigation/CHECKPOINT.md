@@ -1,7 +1,9 @@
-# phase04-006 — release snapshots and dependency resolution
+# phase04-007 — authenticated registry delivery and request limits
 
-Adds pinned release-index/manifest parsing, identity and version-reference validation, immutable-document caching and Android/channel/architecture selection. Dependency traversal handles conditional dependencies, missing nodes/channels, cycles, deterministic ordering and deduplication across AppSets. Explicit selections stay visible even when also reached as dependencies. Mutually exclusive UI selection rules follow in the package-selection phase.
+Moves catalog and release metadata to the pinned GitHub repository contents API. A runtime token is required for that exact HTTPS repository scope; authentication is removed from untrusted destinations, including redirected asset hosts. No credential, account UI, account-storage implementation or future feature SDK is included.
 
-All eight manifest paths/checksums and the registry commit remain fixed. Installer/config-template/payload parsing is not included. Repository components are exercised through the separate test APK; normal-navigation integration follows its prerequisites.
+Adds bounded transient retries, request-limit observation (including API headers preceding redirects), primary/secondary limit detection and a shared cooldown persisted across restarts. Missing/invalid credentials, ordinary 4xx errors, size limits and server cooldowns are not retried. Existing verified cache fallback remains available.
 
-Verification: release lint, existing tests and resolver tests using real latest Android16/17 Core snapshots plus synthetic diamond, cycle, missing-node and conditional graphs. Immediate device checks and manual scans follow OnePlus then Poco. No device pass is claimed in advance.
+Verification: release lint and 39 JVM tests covering host/repository/port scoping, missing credentials, cooldown persistence/expiry, malformed retry headers, interruption, retry classification and pinned metadata. The separate same-signature test APK accepts an ephemeral RSA-encrypted runtime credential, removes its encrypted transfer and private key immediately, fetches real pinned Android16/17 metadata, observes API headers and exercises a controlled cooldown. Credentials never appear in test arguments, APKs, source, evidence or screenshots. Normal account sign-in/storage follows in phase05.
+
+Immediate installation, feature checks and manual Play Protect scans follow OnePlus then Poco using the same published main APK bytes. No device pass is claimed in advance.

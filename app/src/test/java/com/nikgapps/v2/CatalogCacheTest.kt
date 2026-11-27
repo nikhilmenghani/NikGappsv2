@@ -17,7 +17,7 @@ class CatalogCacheTest {
         val name = chain.request().url.pathSegments.last()
         val text = requireNotNull(javaClass.getResource("/registry/$name")).readText()
         Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK").body(text.toResponseBody()).build()
-    }.build())
+    }.build(), token = { "test-only-token" }, pause = {})
     @Test fun freshCacheSurvivesRepositoryRestartAndSkipsRequests() {
         val dir = temporary.newFolder(); var requests = 0
         assertEquals(MetadataSource.NETWORK, CatalogRepository(dir, transport({ requests++ }), { 1000 }).load().source)
@@ -49,7 +49,7 @@ class CatalogCacheTest {
         val dir = temporary.newFolder(); CatalogRepository(dir, transport()).load()
         val changed = RegistryHttp(OkHttpClient.Builder().addInterceptor { chain ->
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK").body("changed".toResponseBody()).build()
-        }.build())
+        }.build(), token = { "test-only-token" }, pause = {})
         assertEquals(MetadataSource.FALLBACK, CatalogRepository(dir, changed).load(forceRefresh = true).source)
         assertEquals(75, CatalogRepository(dir).cached()!!.catalog.packages.size)
     }

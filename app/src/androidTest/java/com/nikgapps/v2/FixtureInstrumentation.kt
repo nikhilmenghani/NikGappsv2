@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.ResponseBody.Companion.toResponseBody
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/** Temporary component views and a pinned public transport check. No storage writes, credentials or arbitrary commands. */
+/** Temporary component views and a pinned public transport check. Whitelisted component checks; credential transfer is encrypted and ephemeral. */
 class FixtureInstrumentation : Instrumentation() {
     private var arguments = Bundle()
     override fun onCreate(arguments: Bundle?) {
@@ -25,7 +27,52 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth"))
+        if (scenario == "credential-key") {
+            finish(Activity.RESULT_OK, Bundle().apply { putString("transfer_public_key", CredentialTransfer.publicKey(targetContext)) })
+            return
+        }
+        if (scenario == "auth") {
+            val directory = java.io.File(targetContext.cacheDir, "auth-component")
+            directory.deleteRecursively()
+            try {
+                var runtimeToken = CredentialTransfer.take(targetContext)
+                RegistryDelivery.userToken = { runtimeToken }
+                try {
+                    val repo = ReleaseRepository(directory)
+                    for (android in listOf("16", "17")) {
+                        val metadata = repo.load(android)
+                        check(metadata.release.androidVersion == android)
+                        check(metadata.catalog.packages.size == 75)
+                    }
+                    val limit = checkNotNull(RegistryRequestLimits.latest.value)
+                    check(limit.remaining != null && limit.limit != null && limit.status == 200)
+                    sendStatus(1, Bundle().apply { putString("authenticated_metadata", "passed: pinned Android16/17 via repository API"); putBoolean("api_limit_headers", true) })
+                    // A separate controlled client exercises real cooldown persistence and rejection without exhausting GitHub.
+                    val prefs = targetContext.getSharedPreferences("investigation-cooldown", 0)
+                    var clock = 100_000L
+                    var calls = 0
+                    val cooldown = RegistryCooldown { clock }.apply { restore(0) { prefs.edit().putLong("retry", it ?: 0).commit() } }
+                    val limited = RegistryHttp(okhttp3.OkHttpClient.Builder().addInterceptor { chain ->
+                        calls++
+                        okhttp3.Response.Builder().request(chain.request()).protocol(okhttp3.Protocol.HTTP_1_1).code(403)
+                            .message("Controlled rate limit").header("Retry-After", "10")
+                            .body("fixture".toResponseBody()).build()
+                    }.build(), cooldown, pause = { error("Cooldown must not retry") })
+                    try { limited.get(RegistryDelivery.contents("catalog.json")); error("Cooldown expected") }
+                    catch (_: RegistryRateLimitedException) { }
+                    check(calls == 1)
+                    val restored = RegistryCooldown { clock }.apply { restore(prefs.getLong("retry", 0)) {} }
+                    try { restored.requireAvailable(RegistryDelivery.contents("catalog.json").toHttpUrl()); error("Restored cooldown expected") }
+                    catch (_: RegistryRateLimitedException) { }
+                    clock += 11_000
+                    restored.requireAvailable(RegistryDelivery.contents("catalog.json").toHttpUrl())
+                    prefs.edit().clear().commit()
+                } finally { runtimeToken = ""; RegistryDelivery.userToken = { "" } }
+            } finally { directory.deleteRecursively(); CredentialTransfer.clear(targetContext) }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("auth_status", "passed: authenticated pinned data, limit observation and persisted cooldown") })
+            return
+        }
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)

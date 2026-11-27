@@ -12,10 +12,10 @@ class CatalogResolverTest {
     @get:Rule val temporary = TemporaryFolder()
     private fun fixture(path: String) = requireNotNull(javaClass.getResource("/registry/$path")).readText()
     private fun http() = RegistryHttp(OkHttpClient.Builder().addInterceptor { chain ->
-        val path = chain.request().url.encodedPath.substringAfter(RegistryPin.COMMIT + "/")
+        val path = chain.request().url.encodedPath.substringAfter("/contents/")
         val resource = if (path == "releases/index.json") "index.json" else path
         Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK").body(fixture(resource).toResponseBody()).build()
-    }.build())
+    }.build(), token = { "test-only-token" }, pause = {})
     @Test fun realLatestAndroid16And17SnapshotsResolveCore() {
         val repo = ReleaseRepository(temporary.newFolder(), http())
         for (android in listOf("16", "17")) {

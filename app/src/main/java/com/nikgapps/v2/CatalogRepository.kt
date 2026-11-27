@@ -31,8 +31,8 @@ internal class CatalogRepository(private val directory: File, private val http: 
         if (!forceRefresh && cached != null && now() - cached.fetchedAtMillis in 0 until CACHE_TTL_MILLIS)
             return@synchronized cached
         try {
-            val catalogText = http.get("${RegistryPin.ROOT}/catalog.json").toString(Charsets.UTF_8)
-            val appSetsText = http.get("${RegistryPin.ROOT}/appsets.json").toString(Charsets.UTF_8)
+            val catalogText = http.get(RegistryDelivery.contents("catalog.json")).toString(Charsets.UTF_8)
+            val appSetsText = http.get(RegistryDelivery.contents("appsets.json")).toString(Charsets.UTF_8)
             val fetchedAt = now()
             val parsed = parse(catalogText, appSetsText, fetchedAt)
             writeCache(buildJsonObject {
