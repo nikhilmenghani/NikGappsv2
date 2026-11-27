@@ -28,12 +28,14 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution", "credential-key", "auth", "icons-data", "icons-view", "icons-cleanup", "account-token"))
         if (scenario == "credential-key") {
             finish(Activity.RESULT_OK, Bundle().apply { putString("transfer_public_key", CredentialTransfer.publicKey(targetContext)) })
             return
         }
+        if (scenario == "account-token") { checkManualTokenUi(this); return }
         if (scenario == "icons-cleanup") {
+            CredentialTransfer.clear(targetContext)
             java.io.File(targetContext.cacheDir, "icons-component").deleteRecursively()
             finish(Activity.RESULT_OK, Bundle().apply { putString("icons_cleanup", "passed") })
             return

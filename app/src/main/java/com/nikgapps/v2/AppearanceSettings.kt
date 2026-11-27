@@ -23,7 +23,7 @@ import androidx.compose.ui.window.Dialog
 private val themeLabels = listOf("Light", "Dark", "System")
 
 @Composable
-internal fun AppearanceSettings(preferences: AppearancePreferences) {
+internal fun AppearanceSettings(preferences: AppearancePreferences, additionalContent: @Composable () -> Unit = {}) {
     val mode = preferences.themeMode
     val dynamicColor = preferences.dynamicColor
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -80,6 +80,7 @@ internal fun AppearanceSettings(preferences: AppearancePreferences) {
                 }
             }
         }
+        additionalContent()
     }
     if (showChoices) AppDialog("Theme", { showChoices = false }) {
         themeLabels.forEachIndexed { index, label ->

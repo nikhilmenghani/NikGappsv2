@@ -6,7 +6,7 @@ Every capability receives its own immutable release. Stop at the first harmful w
 - [x] 01 Branding, splash, navigation, shared UI components
 - [x] 02 Themes, dynamic colors, glass, backgrounds, accordions
 - [x] 03 Persistence, projects, menus, outdated deck and gestures (component inputs; registry integration follows)
-- [ ] 04 Network client, pinned registry, caching, dependencies, authenticated delivery, icons
+- [x] 04 Network client, pinned registry, caching, dependencies, authenticated delivery, icons (components; package-list integration follows phase07)
 - [ ] 05 PAT, OAuth, sessions, required sign-in, avatar, token help
 - [ ] 06 Elite membership, badge, project/name limits, capability checks
 - [ ] 07 AppSets, selection/dependencies/exclusions, search, sort/filter, Review Build

@@ -41,6 +41,8 @@ class StartupState {
 
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
     RegistryAvailability.initialize(activity)
+    val account = GitHubAccountStore(activity.applicationContext)
+    RegistryDelivery.userToken = account::token
     activity.setContent {
         val preferences = remember(activity.applicationContext) { AppearancePreferences(activity.applicationContext) }
         val connection = remember(activity.applicationContext) { NetworkConnection(activity.applicationContext) }
@@ -55,7 +57,7 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
                     Box(Modifier.fillMaxSize()) {
                         if (startup.ready) ConnectionGate(networkState, connection::retry, onSettings = {
                             activity.startActivity(android.content.Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS))
-                        }) { NavigationScreen(preferences) }
+                        }) { NavigationScreen(preferences, account) }
                         if (!ready) AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
                     }
                 }
@@ -65,7 +67,7 @@ fun installNavigation(activity: ComponentActivity, startupView: View, startup: S
 }
 
 @Composable
-private fun NavigationScreen(preferences: AppearancePreferences) {
+private fun NavigationScreen(preferences: AppearancePreferences, account: GitHubAccountStore) {
     val dark = usesDarkTheme(preferences.themeMode)
     val context = LocalContext.current
     val repository = remember(context) { BuildProjectRepository(context) }
@@ -151,7 +153,7 @@ private fun NavigationScreen(preferences: AppearancePreferences) {
                         else perform { repository.copyProject(project.id, targets.toSet()) }
                     }, onDelete = { deletingId = it.id }) }
                 composable("Downloads") { DestinationMessage("Coming soon") }
-                composable("Settings") { AppearanceSettings(preferences) }
+                composable("Settings") { AppearanceSettings(preferences) { GitHubAccountSection(account) } }
             }
         }
     }
