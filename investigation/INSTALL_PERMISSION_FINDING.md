@@ -7,3 +7,5 @@
 - This is an association, not confirmed causation. Recheck previous bytes and permission-removed/reintroduced counterparts. Device classification differs.
 - Cumulative feature additions stopped. Unreleased PostHog SDK preparation saved privately and excluded from these controls.
 - phase19-002-removed removes the permission again; no new SDK/runtime functionality. Version identity changes necessarily accompany immutable releases.
+
+Repeated original permission-only APK was blocked again on Poco after baseline normal reinstall and fresh clean scan. phase19-003-reintroduced restores the same permission for a second independently built control. Permission-removed counterpart device testing is in progress; preparing this artifact does not advance the feature port.

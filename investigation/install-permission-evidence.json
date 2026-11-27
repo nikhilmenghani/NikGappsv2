@@ -1,0 +1,93 @@
+{
+  "status": "isolation_in_progress",
+  "suspect": "android.permission.REQUEST_INSTALL_PACKAGES",
+  "dex_identical_to_prior": true,
+  "posthog_in_blocked_apk": false,
+  "oneplus_permission_only_scan": {
+    "observed_at_utc": "2026-11-27T03:09:59.176194+00:00",
+    "result": "No harmful apps found",
+    "scan_control_pressed": true,
+    "scanning_state_observed": true,
+    "environment": {
+      "model": "GM1911",
+      "android": "11",
+      "sdk": "30",
+      "security_patch": "2022-06-01",
+      "com.android.vending": {
+        "versionName": "54.4.11-29",
+        "versionCode": "85441120"
+      },
+      "com.google.android.gms": {
+        "versionName": "26.43.30",
+        "versionCode": "264330022"
+      },
+      "com.nikgapps.v2": {
+        "versionName": "0.1.0-phase19.001-permission",
+        "versionCode": "34"
+      }
+    },
+    "screenshot_sha256": "c36ed48ee68fa641a367c92c8bf1cceb4d580bbdf8f433136207f21b6cd48a7b"
+  },
+  "poco_warning_first": {
+    "observed_at_utc": "2026-11-27T03:10:47.682263+00:00",
+    "warning": [
+      "Harmful app blocked",
+      "This app may be harmful."
+    ]
+  },
+  "poco_warning_repeat": {
+    "observed_at_utc": "2026-11-27T03:14:34.089234+00:00",
+    "warning": [
+      "Harmful app blocked",
+      "This app may be harmful."
+    ]
+  },
+  "baseline_reinstall": {
+    "previous_exact_bytes": "1a018a5662ddbc530d1d9d0cb6d5b0b21d4c56367480132ada3f217975679841",
+    "normal_installer_reinstall": true,
+    "result": "accepted",
+    "before_update_time": "2026-11-26 22:12:36\r",
+    "after_update_time": "2026-11-26 22:13:58\r"
+  },
+  "baseline_scan": {
+    "observed_at_utc": "2026-11-27T03:14:10.019569+00:00",
+    "result": "No harmful apps found",
+    "scan_control_pressed": true,
+    "scanning_state_observed": true,
+    "environment": {
+      "model": "M2102J20SI",
+      "android": "17",
+      "sdk": "37",
+      "security_patch": "2026-11-01",
+      "com.android.vending": {
+        "versionName": "54.4.11-34",
+        "versionCode": "85441140"
+      },
+      "com.google.android.gms": {
+        "versionName": "26.45.31",
+        "versionCode": "264531035"
+      },
+      "com.nikgapps.v2": {
+        "versionName": "0.1.0-phase05.002-browser",
+        "versionCode": "33"
+      }
+    },
+    "screenshot_sha256": "d81345b34d1042a68b294ed181c83cc87c3e5588588cc9275546403cb8de46b9"
+  },
+  "screenshots": [
+    {
+      "path": "phase19-001-permission/poco/harmful-details.png",
+      "sha256": "aff5c0c705ad82b48c0bea007e3e64eb906302d9f279925b7ab73b737077677e"
+    },
+    {
+      "path": "phase19-001-permission/poco/harmful-install-first.png",
+      "sha256": "89f4a820a2b8b5b6dcbfe9cc0fa0b4cabdb4a4ca920b814f41d44f7533b10603"
+    },
+    {
+      "path": "phase19-001-permission/poco/harmful-install.png",
+      "sha256": "8eb7e46af09996aed8b19fc8bea21bed74c215c7fbd8afc78d02efd18cfb1ed6"
+    }
+  ],
+  "warning_details": "Installing this app may put your device at risk. Learn more about Play Protect.",
+  "bypass_used": false
+}
