@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/** Temporary component view only. No storage writes, credentials, network or arbitrary class/command loading. */
+/** Temporary component views and a pinned public transport check. No storage writes, credentials or arbitrary commands. */
 class FixtureInstrumentation : Instrumentation() {
     private var arguments = Bundle()
     override fun onCreate(arguments: Bundle?) {
@@ -25,11 +25,31 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long"))
+        check(scenario in setOf("outdated", "outdated-long", "network"))
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "network") {
+            val connection = NetworkConnection(targetContext)
+            try {
+                check(connection.state.value == ConnectionState.ONLINE) { "Active network is not validated" }
+                connection.start()
+            } finally { connection.close() }
+            val http = RegistryHttp()
+            val bytes = http.get(RegistryPin.INDEX)
+            val digest = java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
+                .joinToString("") { "%02x".format(it) }
+            check(digest == RegistryPin.INDEX_SHA256)
+            try { http.get(RegistryPin.INDEX + ".missing-fixture"); error("Missing document unexpectedly succeeded") }
+            catch (failure: NetworkResponseException) { check(failure.statusCode == 404) }
+            try { http.get("http://example.com/"); error("Cleartext unexpectedly allowed") }
+            catch (_: IllegalArgumentException) { }
+            sendStatus(1, Bundle().apply {
+                putString("network", "validated HTTPS read, pinned SHA, HTTP404 and cleartext rejection passed")
+                putString("sha256", digest)
+            })
+        }
         val projects = (1..if (scenario == "outdated-long") 18 else 5).map { index -> BuildProject(id = "fixture-$index", name = "Fixture project $index",
             androidVersion = AndroidVersion.ANDROID_17, createdAt = 1795737600000L) }
         val unavailable = projects.drop(2).associate { it.id to setOf("retired-fixture-package") }
@@ -44,7 +64,13 @@ class FixtureInstrumentation : Instrumentation() {
                                 bottomBar = { Text("Component test", Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
                                     style = MaterialTheme.typography.labelMedium) }) { padding ->
                                 Box(Modifier.fillMaxSize().padding(padding)) {
-                                    LocalProjects(projects, onEdit = {}, onCopy = {}, onDelete = {}, unavailable = unavailable)
+                                    if (scenario == "network") {
+                                        var recovered by remember { mutableStateOf(false) }
+                                        if (recovered) Text("Connection restored", Modifier.padding(24.dp))
+                                        else OfflineConnectionCard(onRetry = { recovered = true }, onSettings = {
+                                            activity.startActivity(Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS))
+                                        })
+                                    } else LocalProjects(projects, onEdit = {}, onCopy = {}, onDelete = {}, unavailable = unavailable)
                                 }
                             }
                         }

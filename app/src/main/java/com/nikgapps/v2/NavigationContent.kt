@@ -42,13 +42,21 @@ class StartupState {
 fun installNavigation(activity: ComponentActivity, startupView: View, startup: StartupState) {
     activity.setContent {
         val preferences = remember(activity.applicationContext) { AppearancePreferences(activity.applicationContext) }
+        val connection = remember(activity.applicationContext) { NetworkConnection(activity.applicationContext) }
+        val networkState by connection.state.collectAsState()
+        DisposableEffect(connection) { connection.start(); onDispose { connection.close() } }
+        val ready = startup.ready && networkState != ConnectionState.CHECKING
         CompositionLocalProvider(LocalGlassEnabled provides preferences.liquidGlass,
             LocalGlassBackground provides preferences.background,
             LocalRadialProjectMenu provides preferences.radialProjectMenu) {
-            AppTheme(activity, preferences.themeMode, preferences.dynamicColor, startup.ready) {
+            AppTheme(activity, preferences.themeMode, preferences.dynamicColor, ready) {
                 ProjectsBackdrop {
-                    if (startup.ready) NavigationScreen(preferences)
-                    else AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
+                    Box(Modifier.fillMaxSize()) {
+                        if (startup.ready) ConnectionGate(networkState, connection::retry, onSettings = {
+                            activity.startActivity(android.content.Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS))
+                        }) { NavigationScreen(preferences) }
+                        if (!ready) AndroidView(factory = { startupView }, modifier = Modifier.fillMaxSize())
+                    }
                 }
             }
         }

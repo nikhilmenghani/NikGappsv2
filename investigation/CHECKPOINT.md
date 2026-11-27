@@ -1,7 +1,7 @@
-# phase04-001-isolated — stripped OkHttp inclusion control
+# phase04-002 — network transport and connection handling
 
-Keeps OkHttp 5.5.0 code/dependencies, while explicitly removing its library-contributed INTERNET permission and PlatformInitializer. No application request code is included. The preceding phase04-001 captured the library defaults and passed immediate checks on both devices; its release notes include the merged-manifest correction.
+Activates the existing OkHttp dependency and its platform initializer, declares INTERNET and ACCESS_NETWORK_STATE, and adds bounded HTTPS metadata reads. The app follows the active validated connection, debounces temporary loss, preserves navigation behind the offline gate and offers themed Retry/network-settings actions with hidden help. Connection checks remain behind the startup logo.
 
-Adds a pre-publication guard comparing actual merged permissions and startup initializers with a reviewed expectation file. Published APK bytes and source tags from earlier checkpoints remain unchanged.
+The separate test APK will read the pinned public registry index and verify its SHA-256, exercise HTTP404 and cleartext rejection, and render the real offline component with controlled input. Network toggles on the wireless OnePlus connection are deliberately avoided; controlled offline rendering is not claimed as a physical disconnection test. Registry parsing/caching, authenticated delivery and package downloads are not included yet.
 
-Verification: release lint, 11 JVM tests and merged-manifest comparison. Device checks will cover normal installation and saved-project/navigation behavior, with a fresh v2 installation on Poco to separate that path from OnePlus upgrades. Only task-created v2 fixtures are reset; original NikGapps is untouched. Immediate manual scans follow on OnePlus, then Poco. No device pass is claimed in advance.
+Verification: release lint, existing project tests and transport tests for successful reads, HTTPS enforcement, failure status and size bounds; merged manifest must match declared expectations. Device checks will cover real validated-network startup, transport outcomes, offline component actions/appearances, activity recreation and saved-project preservation, followed by test-tool removal and manual scans on OnePlus then Poco. No device pass is claimed in advance.

@@ -12,8 +12,8 @@ android {
         minSdk = 24
         targetSdk = 37
         testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
-        versionCode = 21
-        versionName = "0.1.0-phase04.001-isolated"
+        versionCode = 22
+        versionName = "0.1.0-phase04.002"
     }
     signingConfigs {
         create("investigation") {
@@ -44,7 +44,7 @@ tasks.matching { it.name == "lintRelease" }.configureEach {
 
 dependencies {
     compileOnly("androidx.startup:startup-runtime:1.2.0") // Already present at runtime; explicit provider merge is checked by lint.
-    implementation("com.squareup.okhttp3:okhttp:5.5.0") // Inclusion checkpoint; activation follows separately.
+    implementation("com.squareup.okhttp3:okhttp:5.5.0") // Same version as the original app.
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303") // JVM tests only; Android supplies org.json in production.
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))
