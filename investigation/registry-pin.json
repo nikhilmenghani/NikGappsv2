@@ -6,5 +6,19 @@
     "16",
     "17"
   ],
-  "release_count": 8
+  "release_count": 8,
+  "documents": {
+    "catalog.json": {
+      "sha256": "717315a9d06bdf950c8f63d31d74c40e0629a65ffa2d4edf3ada0606e8425a41",
+      "size": 1675127,
+      "schema": 1,
+      "count": 75
+    },
+    "appsets.json": {
+      "sha256": "6bb845fea61d26468ca709496a9fe64787d31d0b90ef3191dee59f3250426c50",
+      "size": 15452,
+      "schema": 1,
+      "count": 49
+    }
+  }
 }

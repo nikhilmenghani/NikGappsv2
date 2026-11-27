@@ -25,11 +25,21 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog"))
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "catalog") {
+            val snapshot = CatalogRepository().load()
+            check(snapshot.catalog.packages.size == 75 && snapshot.appSets.appSets.size == 49)
+            finish(Activity.RESULT_OK, Bundle().apply {
+                putString("catalog_status", "passed: pinned checksums, schema and references")
+                putInt("packages", snapshot.catalog.packages.size)
+                putInt("appsets", snapshot.appSets.appSets.size)
+            })
+            return
+        }
         if (scenario == "network") {
             val connection = NetworkConnection(targetContext)
             try {

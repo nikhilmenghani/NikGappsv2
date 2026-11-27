@@ -1,7 +1,7 @@
-# phase04-003 — catalog JSON library inclusion
+# phase04-004 — catalog retrieval and parsing
 
-Adds kotlinx.serialization JSON 1.11.0, matching the original app. No JSON catalog parser, catalog cache or package-selection UI is included yet. Existing local project JSON still uses Android org.json.
+Adds reviewed catalog and AppSet parsing plus checksum-verified retrieval from the fixed registry revision. This includes package identity/version/compatibility declarations and dependency references; it does not resolve selections, parse installer/removal payload fields, download packages, or add package-selection UI.
 
-Verification: release lint and unit tests, resolved dependency graph and unchanged merged permissions/initializers. Device checks will verify normal upgrades, local projects, navigation and restart, followed by manual Play Protect scans on OnePlus then Poco. No device pass is claimed in advance.
+The separate instrumentation APK exercises the actual repository against the pinned public documents (75 packages, 49 AppSets). Normal-navigation integration follows the registry/selection prerequisites. Complete test fixtures live only in JVM test resources, outside the main APK.
 
-The preceding network checkpoint required enabling the v2-specific Allow network access setting on Poco after REJECT_ALL was observed. That setting and the successful physical loss/recovery retest are recorded in the ledger. No original-app or global security setting was changed.
+Verification: release lint, existing tests and parser tests covering real data, unsupported schema, duplicate IDs and missing AppSet references; manifest expectations unchanged. Device checks will verify real pinned retrieval/parsing, saved local projects and navigation, test-tool removal, then manual scans on OnePlus followed by Poco. No device pass is claimed in advance.

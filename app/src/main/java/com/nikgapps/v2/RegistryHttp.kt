@@ -40,6 +40,9 @@ internal class RegistryHttp(private val client: OkHttpClient = OkHttpClient.Buil
 
 internal object RegistryPin {
     const val COMMIT = "9a0d39ffc59d3c13a3c1e70a543579e0c9e87504"
-    const val INDEX = "https://raw.githubusercontent.com/nikgapps/nikgapps-packages/$COMMIT/releases/index.json"
+    const val ROOT = "https://raw.githubusercontent.com/nikgapps/nikgapps-packages/$COMMIT"
+    const val INDEX = "$ROOT/releases/index.json"
+    const val CATALOG_SHA256 = "717315a9d06bdf950c8f63d31d74c40e0629a65ffa2d4edf3ada0606e8425a41"
+    const val APPSETS_SHA256 = "6bb845fea61d26468ca709496a9fe64787d31d0b90ef3191dee59f3250426c50"
     const val INDEX_SHA256 = "c16bf0972e1e7a42b98d79f1813c8ce0ef1e3a8674ec0ad3e097227ecafb6823"
 }
