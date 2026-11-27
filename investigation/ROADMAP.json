@@ -287,5 +287,16 @@
   "completed_integrations": [
     "Create action and shared project sheet are integrated and tested in phase03-002."
   ],
-  "pending_integration": []
+  "pending_integration": [],
+  "priority_override": {
+    "requested": "2026-11-26",
+    "order": [
+      "updater_permission_only",
+      "updater_runtime_group",
+      "posthog_sdk_only",
+      "posthog_initialization_and_logging_group"
+    ],
+    "group_policy": "Group related runtime capabilities; split and remove/reintroduce on first warning. Permission/SDK inclusion controls remain isolated.",
+    "single_theme": true
+  }
 }

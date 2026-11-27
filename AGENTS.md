@@ -22,3 +22,7 @@
 
 - Use `nikgapps-release/nikgapps_release/engine/build/PackageConstants.py:get_package_deletes` and package pipeline overrides as the source of stock-app removal rules. The Android app must consume the resolved package version's `install.removeFiles` metadata rather than duplicate these mappings in Kotlin.
 - Refer to `nikgapps-operations/MIGRATION.md` before changing hosted registry or release workflows; migrated source code and the deployed runtime can be at different stages of the migration.
+
+## Investigation testing scope
+
+- Use one theme for routine feature and Play Protect checkpoints. Repeat other themes only when a change affects theme rendering or contrast; theme variants are not separate harmful-app detection experiments.

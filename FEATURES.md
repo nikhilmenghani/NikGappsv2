@@ -1,6 +1,6 @@
 # Feature port checklist
 
-Every capability receives its own immutable release. Stop at the first harmful warning, retest controls, isolate the delta and validate the matching correction in the original package.
+Every checkpoint receives its own immutable release. Under the revised investigation, related capabilities may be grouped, then split if a warning appears. Stop at the first harmful warning, retest controls, isolate the delta and validate the matching correction in the original package.
 
 - [x] 00 Empty framework app; ordinary/normalized signing controls
 - [x] 01 Branding, splash, navigation, shared UI components
@@ -31,3 +31,14 @@ Downloads remains a placeholder. Retired guest/root/unsupported-Android paths st
 ## Observation fields
 
 Release, source SHA, feature delta, APK SHA-256, certificate, merged manifest, dependency list, device/OS/Play versions, installer source, fresh/upgrade path, UTC time, feature result, manual scan result, exact warning and screenshot references. Immediate passes are provisional.
+
+## Revised priority
+
+User requested updater and analytics experiments before the remaining parity port. Permission declaration and SDK inclusion remain isolated controls. Runtime prerequisites may be grouped (up to four related capabilities). A warning implicates the tested combination, not a proven individual cause; use removal/reintroduction and matching previous controls before claiming causation.
+
+1. phase19-001-permission: REQUEST_INSTALL_PACKAGES declaration only; no request/grant, updater code, APK download, FileProvider or installer invocation.
+2. Updater activation: release lookup, APK download, validation, installer handoff. Test inclusion separately from install-source grant/runtime action. V2 targets only.
+3. PostHog 3.70.0 SDK inclusion without initialization.
+4. PostHog initialization and representative logging against a separate diagnostic project, matching original capture settings.
+
+Deferred cumulative GitHub checkpoint: OnePlus browser authorization and scan passed; Poco installation and manual scan passed, but browser authorization was not exercised after an ADB server interruption. Do not count this as full two-device OAuth completion.
