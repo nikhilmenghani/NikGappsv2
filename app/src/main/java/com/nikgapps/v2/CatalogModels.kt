@@ -14,6 +14,15 @@ internal data class PackageVersion(val versionName: String, val versionCode: Lon
     val sources: List<String>, val deviceTypes: List<String>)
 internal data class AppSetCatalog(val schemaVersion: Int, val appSets: List<CatalogAppSet>)
 internal data class CatalogAppSet(val id: String, val name: String, val packages: List<String>, val resolvedPackages: List<String>)
+internal enum class ReleaseChannel { STABLE, BETA, CANARY; val wireName get() = name.lowercase() }
+internal data class ReleaseSummary(val id: String, val androidVersion: String, val platformApi: Int,
+    val architecture: String, val channel: String, val source: String, val createdAt: String, val manifest: String)
+internal data class ReleaseIndex(val schemaVersion: Int, val updatedAt: String,
+    val latest: Map<String, Map<String, Map<String, String>>>, val releases: List<ReleaseSummary>)
+internal data class CatalogRelease(val schemaVersion: Int, val id: String, val createdAt: String,
+    val androidVersion: String, val platformApi: Int, val architecture: String, val channel: String,
+    val source: String, val packages: Map<String, String>, val appSets: List<CatalogAppSet>)
+
 internal class MetadataException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /** Reviewed catalog/AppSet parsing only. Release snapshots, installer/payload fields and selection rules follow separately. */
@@ -50,6 +59,25 @@ internal object CatalogParser {
             require(it.appSets.map { a -> a.id }.distinct().size == it.appSets.size) { "duplicate AppSet id" }
         }
     }
+    fun parseReleaseIndex(text: String): ReleaseIndex = wrap("release index") {
+        val root = json.parseToJsonElement(text).jsonObject; schema(root)
+        val latest = root.obj("latest").mapValues { (_, channels) -> channels.jsonObject.mapValues { (_, architectures) ->
+            architectures.jsonObject.mapValues { it.value.jsonPrimitive.content }
+        } }
+        ReleaseIndex(root.int("schemaVersion"), root.string("updatedAt"), latest, root.array("releases").map { value ->
+            val r = value.jsonObject
+            ReleaseSummary(r.string("id"), r.string("androidVersion"), r.int("platformApi"), r.string("architecture"),
+                r.string("channel"), r["source"]?.jsonPrimitive?.content ?: "legacy", r.string("createdAt"), r.string("manifest"))
+        }).also { require(it.releases.map { r -> r.id }.distinct().size == it.releases.size) { "duplicate release id" } }
+    }
+    fun parseRelease(text: String): CatalogRelease = wrap("release manifest") {
+        val root = json.parseToJsonElement(text).jsonObject; schema(root)
+        CatalogRelease(root.int("schemaVersion"), root.string("id"), root.string("createdAt"), root.string("androidVersion"),
+            root.int("platformApi"), root.string("architecture"), root.string("channel"), root["source"]?.jsonPrimitive?.content ?: "legacy",
+            root.obj("packages").mapValues { (_, value) -> value.jsonObject.string("version") },
+            root.array("appSets").map { value -> val a = value.jsonObject
+                CatalogAppSet(a.string("id"), a.string("name"), a.strings("packages"), a.strings("resolvedPackages")) })
+    }
     private fun version(v: JsonObject, defaults: CatalogDefaults): PackageVersion {
         val android = v.obj("android")
         return PackageVersion(v.string("versionName"), v.getValue("versionCode").jsonPrimitive.long,
@@ -71,4 +99,10 @@ internal object CatalogParser {
     private fun JsonObject.optionalStrings(k: String) = get(k)?.jsonArray?.map { it.jsonPrimitive.content }.orEmpty()
     private fun JsonObject.nullableString(k: String) = get(k).let { if (it == null || it is JsonNull) null else it.jsonPrimitive.content }
     private fun JsonObject.nullableInt(k: String) = get(k).let { if (it == null || it is JsonNull) null else it.jsonPrimitive.int }
+}
+
+private val NEVER_SELECTABLE = setOf("extrafiles", "extrafilesgo", "gms_core_support_common", "gms_core_support_standard", "gms_core_support_go")
+internal fun Catalog.publicPackages(appSet: CatalogAppSet): List<CatalogPackage> {
+    val byId = packages.associateBy { it.id }
+    return appSet.packages.mapNotNull(byId::get).filter { it.selectable && !it.internal && it.id.lowercase() !in NEVER_SELECTABLE && it.name.lowercase() !in NEVER_SELECTABLE }
 }

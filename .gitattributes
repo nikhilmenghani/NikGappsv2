@@ -5,4 +5,4 @@ gradlew text eol=lf
 *.py text eol=lf
 *.jar binary
 
-app/src/test/resources/registry/*.json text eol=lf
+app/src/test/resources/registry/**/*.json text eol=lf

@@ -1,6 +1,9 @@
 package com.nikgapps.v2
 
 internal sealed class RegistryException(message: String) : Exception(message) {
+    class MissingChannel(id: String, channel: String) : RegistryException("Package '$id' has no '$channel' channel")
+    class MissingDependency(id: String, parent: String) : RegistryException("Missing dependency '$id' required by '$parent'")
+    class DependencyCycle(path: List<String>) : RegistryException("Dependency cycle: ${path.joinToString(" -> ")}")
     class UnsupportedApi(id: String, api: Int, min: Int?, max: Int?) : RegistryException("Package '$id' does not support API $api (min=$min, max=$max)")
     class UnsupportedArchitecture(id: String, arch: String) : RegistryException("Package '$id' does not support $arch")
     class UnsupportedDeviceType(id: String, type: String) : RegistryException("Package '$id' does not support $type devices")

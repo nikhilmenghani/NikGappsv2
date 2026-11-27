@@ -25,11 +25,30 @@ class FixtureInstrumentation : Instrumentation() {
     override fun onStart() {
         check(targetContext.packageName == "com.nikgapps.v2")
         val scenario = arguments.getString("scenario", "outdated")
-        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache"))
+        check(scenario in setOf("outdated", "outdated-long", "network", "catalog", "cache", "resolution"))
         val theme = arguments.getString("theme", "dark")
         check(theme in setOf("dark", "light", "classic"))
         val activity = startActivitySync(Intent(targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        if (scenario == "resolution") {
+            val directory = java.io.File(targetContext.cacheDir, "resolution-component")
+            directory.deleteRecursively()
+            try {
+                val repo = ReleaseRepository(directory)
+                for (android in listOf("16", "17")) {
+                    val metadata = repo.load(android)
+                    val core = metadata.appSets.appSets.first { it.id == "core" }
+                    val selected = metadata.catalog.publicPackages(core).map { it.id }.toSet()
+                    val result = CatalogResolver(metadata.catalog, metadata.appSets, metadata.release).resolve(core.id, selected,
+                        ReleaseChannel.STABLE, emptyMap(), metadata.release.platformApi, "arm64-v8a")
+                    check(result.isNotEmpty() && result.map { it.catalogPackage.id }.distinct().size == result.size)
+                    check(selected.all { id -> result.any { it.catalogPackage.id == id && !it.hidden } })
+                    sendStatus(1, Bundle().apply { putString("resolved_android", android); putInt("resolved_packages", result.size) })
+                }
+            } finally { directory.deleteRecursively() }
+            finish(Activity.RESULT_OK, Bundle().apply { putString("resolution_status", "passed: Android16/17 pinned snapshots and Core dependency resolution") })
+            return
+        }
         if (scenario == "cache") {
             val directory = java.io.File(targetContext.cacheDir, "cache-component")
             directory.deleteRecursively()

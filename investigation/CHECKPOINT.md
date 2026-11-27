@@ -1,7 +1,7 @@
-# phase04-005 — verified cache and compatibility
+# phase04-006 — release snapshots and dependency resolution
 
-Adds a 30-minute app-private cache for the complete pinned catalog/AppSet pair, checksum/schema/reference validation, interrupted-write recovery and last-successful fallback after refresh failure. Damaged or mismatched data is rejected. API bounds, declared Android versions, architecture and device-type restrictions are checked without resolving package selections yet.
+Adds pinned release-index/manifest parsing, identity and version-reference validation, immutable-document caching and Android/channel/architecture selection. Dependency traversal handles conditional dependencies, missing nodes/channels, cycles, deterministic ordering and deduplication across AppSets. Explicit selections stay visible even when also reached as dependencies. Mutually exclusive UI selection rules follow in the package-selection phase.
 
-The separate test APK exercises actual network population, fresh-cache reuse, controlled transport failure, corrupted-cache rejection and compatibility in a task-owned private cache directory, then removes its fixtures. No new production permissions/dependencies. Normal-navigation integration follows selection prerequisites.
+All eight manifest paths/checksums and the registry commit remain fixed. Installer/config-template/payload parsing is not included. Repository components are exercised through the separate test APK; normal-navigation integration follows its prerequisites.
 
-Verification: release lint, prior tests and cache/compatibility tests, unchanged merged-manifest expectations. Immediate device checks and manual scans follow on OnePlus then Poco; no device pass is claimed in advance.
+Verification: release lint, existing tests and resolver tests using real latest Android16/17 Core snapshots plus synthetic diamond, cycle, missing-node and conditional graphs. Immediate device checks and manual scans follow OnePlus then Poco. No device pass is claimed in advance.

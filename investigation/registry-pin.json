@@ -20,5 +20,71 @@
       "schema": 1,
       "count": 49
     }
+  },
+  "release_documents": {
+    "releases/android-17/arm64-v8a/stable/20260811T025719Z-243eb7d6.json": {
+      "sha256": "2d783f0749bcfdb040e29b65f40e36efd2758186f79d7a5bcc914c6810ed9c5b",
+      "size": 22027,
+      "id": "20260811T025719Z-243eb7d6",
+      "android": "17",
+      "packages": 73,
+      "appsets": 49
+    },
+    "releases/android-16/arm64-v8a/stable/20260811T030332Z-4482dd23.json": {
+      "sha256": "bf6760a22c67a63be1c615a35d694b83fd2968ae3cc731a9c98ae4b23aa6358f",
+      "size": 22004,
+      "id": "20260811T030332Z-4482dd23",
+      "android": "16",
+      "packages": 73,
+      "appsets": 49
+    },
+    "releases/android-17/arm64-v8a/stable/20260811T034831Z-5b178339.json": {
+      "sha256": "55b6bd0ac0707eeb686b094be21ed10ba8723e8844bf31fc4a114fd7fca98e8b",
+      "size": 22027,
+      "id": "20260811T034831Z-5b178339",
+      "android": "17",
+      "packages": 73,
+      "appsets": 49
+    },
+    "releases/android-17/arm64-v8a/stable/20261006T192020Z-951a5b50.json": {
+      "sha256": "882c0c5c2a6914d55eba0ba3cf7280f8c8f2103f660a518f465f7d9526dcaf44",
+      "size": 20761,
+      "id": "20261006T192020Z-951a5b50",
+      "android": "17",
+      "packages": 69,
+      "appsets": 48
+    },
+    "releases/android-17/arm64-v8a/stable/20261009T000641Z-6143ceee.json": {
+      "sha256": "61aac8c3714da16e54c50934e253649dcd72112f41ea48f7f55287d9a75f2a17",
+      "size": 20761,
+      "id": "20261009T000641Z-6143ceee",
+      "android": "17",
+      "packages": 69,
+      "appsets": 48
+    },
+    "releases/android-17/arm64-v8a/stable/20261012T171351331663Z-f442b13b.json": {
+      "sha256": "9008ea8b34d910f269b5506605c30c66a8d2742a615d73721e5821316d58afb5",
+      "size": 27307,
+      "id": "20261012T171351331663Z-f442b13b",
+      "android": "17",
+      "packages": 68,
+      "appsets": 48
+    },
+    "releases/android-17/arm64-v8a/stable/20261110T032745213955Z-8fe5150b.json": {
+      "sha256": "c925e4a581e22a0ba8697617baa69a12e6bf7489e44dd3c60e9304d86a1a19fd",
+      "size": 74750,
+      "id": "20261110T032745213955Z-8fe5150b",
+      "android": "17",
+      "packages": 67,
+      "appsets": 48
+    },
+    "releases/android-17/arm64-v8a/stable/20261119T183345015544Z-cf43ebdf.json": {
+      "sha256": "0e50b97207bbd5facc43378b226aabbb6c656986ee72569a9c9bea461323ffa5",
+      "size": 79972,
+      "id": "20261119T183345015544Z-cf43ebdf",
+      "android": "17",
+      "packages": 69,
+      "appsets": 48
+    }
   }
 }
