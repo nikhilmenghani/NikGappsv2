@@ -139,7 +139,7 @@ internal fun MandatoryUpdateScreen(
                         FilledTonalButton(
                             onClick = { showChangelog = true },
                             modifier = Modifier.fillMaxWidth()
-                        ) { Text("WhatÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢s new") }
+                        ) { Text("What’s new") }
                         GlassButton(
                             onClick = onUpdate,
                             enabled = !checking,
@@ -155,7 +155,7 @@ internal fun MandatoryUpdateScreen(
     }
     if (showChangelog) {
         ChangelogDialog(
-            title = "WhatÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢s new in ${latestVersion.orEmpty()}",
+            title = "What’s new in ${latestVersion.orEmpty()}",
             entries = changelog,
             onDismiss = { showChangelog = false },
             onUpdate = {

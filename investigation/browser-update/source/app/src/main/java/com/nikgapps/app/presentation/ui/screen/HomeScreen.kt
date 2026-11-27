@@ -572,7 +572,7 @@ fun HomeScreen(navController: NavHostController, floatingBarBottomPadding: Dp = 
     )
     if (showUpdateChangelog) {
         ChangelogDialog(
-            title = "WhatÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s new in $latestVersion",
+            title = "What’s new in $latestVersion",
             entries = updateChangelog,
             onDismiss = { showUpdateChangelog = false },
             onUpdate = ::downloadUpdate
@@ -819,7 +819,7 @@ internal fun ProjectCard(
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "${project.selectedAppIds.size} apps Ãƒâ€šÃ‚Â· ${
+                        "${project.selectedAppIds.size} apps · ${
                             remember(project.createdAt) {
                                 SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
                                     .format(Date(project.createdAt))
@@ -830,7 +830,7 @@ internal fun ProjectCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text("API ${project.androidVersion.apiLevel} Ãƒâ€šÃ‚Â· ${project.architecture.displayName} build",
+                    Text("API ${project.androidVersion.apiLevel} · ${project.architecture.displayName} build",
                         Modifier.alignByBaseline(), style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -1084,7 +1084,7 @@ private fun ProjectSheet(
                 onValueChange = { name = it.take(nameLimit) },
                 label = { Text("Project name") },
                 shape = RoundedCornerShape(16.dp),
-                supportingText = { Text("${name.length}/$nameLimit${if (eliteNameLimit) " Ãƒâ€šÃ‚Â· Elite" else ""}") },
+                supportingText = { Text("${name.length}/$nameLimit${if (eliteNameLimit) " · Elite" else ""}") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { saveProject() }),
@@ -1103,7 +1103,7 @@ private fun ProjectSheet(
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            "Loading supported versionsÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦",
+                            "Loading supported versions…",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1160,7 +1160,7 @@ private fun ProjectSheet(
             }
             if (project == null) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Package configuration Ãƒâ€šÃ‚Â· Optional", style = MaterialTheme.typography.labelLarge)
+                    Text("Package configuration · Optional", style = MaterialTheme.typography.labelLarge)
                     Text("Load a config to preselect packages, or create an empty project.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (configAttempted || importError != null) Surface(shape = RoundedCornerShape(16.dp),
@@ -1186,7 +1186,7 @@ private fun ProjectSheet(
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(configFileName ?: "Selected config", style = MaterialTheme.typography.titleSmall,
                                     maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                Text(importError ?: if (loadingConfig) "Checking the latest package definitionsÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦"
+                                Text(importError ?: if (loadingConfig) "Checking the latest package definitions…"
                                     else "${validatedConfig?.selectedAppIds?.size ?: 0} packages preselected",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (importError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -1209,7 +1209,7 @@ private fun ProjectSheet(
                     modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(if (loadingConfig) "ValidatingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" else if (configAttempted) "Replace config" else "Load config",
+                    Text(if (loadingConfig) "Validating…" else if (configAttempted) "Replace config" else "Load config",
                         style = MaterialTheme.typography.labelLarge)
                 }
                 Button(
@@ -1219,7 +1219,7 @@ private fun ProjectSheet(
                     modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(if (savingProject) "Creating projectÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦" else if (project == null) "Create project" else "Save changes",
+                    Text(if (savingProject) "Creating project…" else if (project == null) "Create project" else "Save changes",
                         style = MaterialTheme.typography.labelLarge)
                 }
             }

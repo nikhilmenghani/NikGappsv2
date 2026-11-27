@@ -1,11 +1,12 @@
 {
-  "base_original_source": "959f3f4f7561a1647c8432133b3243069991c34e",
+  "base_original_source": "4ae37fca0f2266ee89a87e0a1aad62ad92dae050",
+  "local_committed_code_baseline": "959f3f4f7561a1647c8432133b3243069991c34e",
   "files": {
     "app/src/main/AndroidManifest.xml": "6a567161e31fbda59cf44ccd0e0336c2e31ce27c6ee5b941b1b3749f9a51cf34",
     "app/src/main/java/com/nikgapps/MainActivity.kt": "0efc3f7d2ddcdddee51a240acde58ba003592af8c7111d0c0beda1d52c20f544",
     "app/src/main/java/com/nikgapps/app/update/AppUpdateBrowser.kt": "2f02748034897abcc8fc04cffd14f4f11c154738285b72cf7caa75457cc4e400",
     "app/src/main/java/com/nikgapps/app/update/AppUpdateManager.kt": "554de416bc208bd5abc51baae9ea79393b092a595e63b5f6aaa5aeeaac6f29f8",
-    "app/src/main/java/com/nikgapps/app/update/MandatoryUpdateGate.kt": "e385be2a734e6b710fcd3ea41af83c20e20938c653b721831d2a14fbcdaf06b4",
+    "app/src/main/java/com/nikgapps/app/update/MandatoryUpdateGate.kt": "bf6a215cb6088061ec01d5e71c543940fa2cb81734e36cc8610e07150a73f4dc",
     "app/src/main/java/com/nikgapps/app/update/UpdateActionReceiver.kt": "6b07d89a3cd4920489be4a4f25c8d654dfc5728588281378dc3d9c8060e7fda9",
     "app/src/main/java/com/nikgapps/app/update/UpdateCheckWorker.kt": "62bb6fe73fec8e6a53e43e6f47b9f556753d3032b03eea12cdfe51ab25c74892",
     "app/src/main/java/com/nikgapps/app/utils/NotificationUtility.kt": "9a6ff5cdc96321653823310fd09507eb8ecdd175be56ef62d380e51c161c15ab",
@@ -13,8 +14,17 @@
     "app/src/main/java/com/nikgapps/app/utils/constants/PermissionConstants.kt": "946e9ba091ee1e32c69bfa3bf6b57bcef4ffcace2b8e2113ebaaa2967bf45f8a",
     "app/src/main/java/com/nikgapps/app/utils/permissions/Permissions.kt": "6c9f0e9120353aee0ea17a574e4eb12e057dfe988fe8b6829211a92fc8c0fc9a",
     "app/src/main/java/com/nikgapps/app/presentation/ui/screen/PermissionsScreen.kt": "0cc6509d8d50d3f2af73ac66a14db413cf8f44ff50c2cefde9f8bd507cfc11e2",
-    "app/src/main/java/com/nikgapps/app/presentation/ui/screen/HomeScreen.kt": "0bd7a37fcbdb92202600424aba394a5286b9a39259995522103d2953852bb837",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/screen/HomeScreen.kt": "984cff18d7948b5ee5bc95fe51a99c0ad36eee1a6197f4472ee2dbe701abe3ec",
     "app/src/main/java/com/nikgapps/dumps/UpdateAppCard.kt": "8ddb9fd3e3f7f3151ec6ba800f2a627c0cd3df4dbad23d080aa8a545e7d878e9",
-    "app/src/test/java/com/nikgapps/app/update/AppUpdateBrowserTest.kt": "5cc79cd9ff0335aa3fef7ff3d9674fbbefdfadf0cdc5c82927fa54829b0d688f"
+    "app/src/test/java/com/nikgapps/app/update/AppUpdateBrowserTest.kt": "5cc79cd9ff0335aa3fef7ff3d9674fbbefdfadf0cdc5c82927fa54829b0d688f",
+    "app/src/main/java/com/nikgapps/app/data/AppFeatureCatalog.kt": "edeb1197569b672041f035fcb77258b5c547529a95b5bd281b24748382bd836d",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/component/RegistryReleaseBanner.kt": "f4705c201c1e4a26d39843d030d7e89ea45d98dce8aada2dca854efdab30c5ea",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/component/StartupLogoScreen.kt": "e069647abfd6f42846d36ca0b8acb0f94eace788bf014d69c2f07a366978c5e6",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/component/cards/OutdatedProjectsSection.kt": "4443d1d8d0287fe7dccf3426b0f0d3db48c31213e9ddb6bbbc0a522dc963b3cd",
+    "app/src/main/java/com/nikgapps/app/presentation/ui/component/cards/PermissionsCard.kt": "06814aca0f4a6dd12db286d9491d696ffeef66ad40b3f36117f0dba1b80bae25",
+    "app/src/main/java/com/nikgapps/app/registry/PackageReleaseNotesRepository.kt": "5510046b9952cfc7fa7d97eae00045d500df60aea4697c228c98006e55f3362d",
+    "app/src/main/java/com/nikgapps/app/registry/ProjectDisplayOrder.kt": "4c78ede88cf4c7d89e5499ffb4ae71dca6a3b5ac45c7edbe03a40c5c56f65b15",
+    "app/src/main/java/com/nikgapps/app/utils/worker/BuildZipWorker.kt": "1c18fb84abf99676e6b62937dc46f2eadb2f897fd20023f489d169a682e2f88c",
+    "app/src/main/java/com/nikgapps/app/utils/worker/DownloadWorker.kt": "e219421fcdf875271bfcb348736a5199865e6a8ae1a3118d69711df7be3df78a"
   }
 }

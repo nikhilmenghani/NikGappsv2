@@ -1,0 +1,77 @@
+package com.nikgapps.app.data
+
+data class AppFeature(val title: String, val summary: String, val details: String, val elite: Boolean = false)
+data class AppFeaturePage(val title: String, val description: String, val features: List<AppFeature>)
+
+/** Add features and pages here; the guide renders them without UI changes. */
+object AppFeatureCatalog {
+    val eliteFeatures = listOf(
+        AppFeature("Selective project restore", "Choose which backup projects to import", "Open Settings → Account → Restore projects and select a .nikgapps backup. Elite users can choose compatible projects to restore; regular users import all compatible projects with read-only project cards. Restoring replaces the current project list after confirmation. Elite users can optionally enable Import outdated projects, which is off by default. Keeping existing projects through incremental import is planned for a future update.", true),
+        AppFeature("Unlimited projects", "Create more than $REGULAR_PROJECT_LIMIT projects", "Regular accounts can keep up to $REGULAR_PROJECT_LIMIT projects, including copies and outdated projects. Elite accounts have no project-count limit. Existing projects are preserved if membership changes.", true),
+        AppFeature("Elite badge", "Recognition on your dashboard", "Sign in with an eligible GitHub account to see your Elite badge.", true),
+        AppFeature("Extra builds", "Add six builds to your remaining allowance", "Use Reset build window on the project screen. Your remaining allowance plus six starts a new six-hour window. Available once per six-hour window.", true),
+        AppFeature("Compression control", "Choose ZIP compression levels 1–9", "Enable compressed builds in Settings → System, then choose a compression level. Higher levels prioritize smaller files over build speed.", true),
+        AppFeature("ZIP filename date", "Release date or current date", "Settings → System lets you choose the release date or today's device-local date for the filename. Package versions and release metadata stay unchanged.", true),
+        AppFeature("Longer project names", "25 characters instead of 20", "Elite accounts can create and rename projects with up to 25 characters. Regular accounts have a 20-character limit.", true)
+    )
+    val pages = listOf(
+        AppFeaturePage("Projects", "Organize your own GApps selections", listOf(
+            AppFeature("Back up and restore projects", "Move projects between builds", "Open Settings → Account → Project backup to export a .nikgapps file, then Restore projects in the release build or on another device. Restore replaces all existing projects after confirmation. Regular users import all compatible projects; Elite users can select which compatible projects to import. Outdated projects are exported and skipped by default; Elite users can enable Import outdated projects. An internet connection is required to check compatibility; project limits still apply. Backups include package selections, stock-app preferences, installer settings and debloater targets, but no tokens, APKs, ZIPs or build allowances. The backup format version determines compatibility across app releases; a newer unsupported format requires an app update."),
+            AppFeature("Why GitHub sign-in?", "Package downloads, app updates and ZIP credits", GITHUB_SIGN_IN_EXPLANATION),
+            AppFeature("Create a project", "Name it and choose Android", "Tap + on Home, enter a project name and select a supported Android version. ARM64 is the supported architecture. Optionally load a config to preselect packages."),
+            AppFeature("Manage projects", "Edit, copy, delete and reopen ZIPs", "Long-press a project card for its menu. Rename or copy a project, delete one you no longer need, or reopen its previously built ZIP using Open ZIP."),
+            AppFeature("Outdated projects", "Keep old selections separate", "Swipe down on Outdated projects to expand it. Swipe up anywhere in the deck to collapse it, or tap the header. Swipe along a side margin to scroll through long lists. Long-press a card to review the project or export its config. Outdated projects cannot be built until recreated with current definitions.")
+        )),
+        AppFeaturePage("Packages", "Select exactly what you need", listOf(
+            AppFeature("Apps and AppSets", "Choose apps from one unified list", "Multi-package AppSets appear first. Expand a group to choose individual packages, or use its checkbox to select the whole group. Single-package AppSets appear below as one selectable app card. Tap an app to toggle selection and press and hold for package information and stock-app options. Search is in the bottom action bar, immediately before Build ZIP."),
+            AppFeature("Review your selection", "Check packages before building", "Tap Build ZIP to review selected packages grouped by AppSet and confirm the build. Core and CoreGo are mutually exclusive, as are SetupWizard and PixelSetupWizard. Select all prefers Core and SetupWizard."),
+            AppFeature("Package info", "Press and hold for more options", "Tap a package tile to toggle selection. Press and hold it and choose Show info to inspect package details. Search, sort and filters help locate packages; Installed badges identify apps on your device."),
+            AppFeature("Keep Stock app", "Keep the original system app", "For packages that remove stock apps, long-press a package and choose Keep Stock app, even before selecting it. Review the configured removal targets; confirming also selects the package for your build. Choose Delete Stock app to review and restore normal removal during flashing; only matching apps in your ROM are affected.")
+        )),
+        AppFeaturePage("Configs", "Share and reuse your selection", listOf(
+            AppFeature("Project debloater", "Bundle optional app removals", "Open Debloater on Choose your apps. Add each file or folder with +, review the list, acknowledge the warning and Apply. The project config preserves your targets. Removals happen when flashing the ZIP, not in the app. Known critical components and conflicting selections are blocked; other removals can still break Android."),
+            AppFeature("Load a config", "Optional setup with immediate validation", "On Create project, choose Android first, then Load config. Only .config files matching the selected Android version and latest supported definitions are accepted. Invalid configs block creation until removed or replaced. Remove the config to unlock Android selection."),
+            AppFeature("Export a config", "Save your selection as a .config file", "Choose Export config when packages are selected. The filename defaults to the project name and can be renamed. Exports use LF line endings, the Android-specific published template, and UseZipConfig enabled."),
+            AppFeature("Stock-app preferences", "Your choices travel with the config", "Value 0 disables a package, 1 selects it, and 2 selects it while keeping its stock app. Import and export preserve these preferences. Required dependencies are resolved automatically.")
+        )),
+        AppFeaturePage("ZIP builds", "Create a flashable GApps package", listOf(
+            AppFeature("Build your ZIP", "Use your project's selected packages", "Choose Build ZIP or Create ZIP, review your selection and confirm to assemble a package from the published registry. A connection is required to verify metadata and fetch package files. The normal build quota applies."),
+            AppFeature("Build progress", "Track the full operation", "The build screen shows overall progress alongside package download progress and logs. Completed ZIPs are saved to Downloads/NikGapps and can be reopened from Home."),
+            AppFeature("Standard or compressed", "Build speed or smaller files", "Settings → System lets you choose standard builds or compressed builds. Compression usually creates smaller ZIPs but takes longer. The optional build prompt can remember your choice.")
+        )),
+        AppFeaturePage("Settings", "Make NikGapps work your way", listOf(
+            AppFeature("One settings page", "Expand only what you need", "Open Settings from the bottom navigation beside Projects and Downloads. Appearance, Account, System and About are together on one scrolling page, with every section collapsed initially. Expand a section to configure it; Advanced is available when developer options are enabled."),
+            AppFeature("Appearance", "Customize the app's look", "Open Settings → Appearance to choose your theme and colors. With Liquid glass enabled, open Background to preview Google colors, Ocean, Forest, Dusk or Graphite and apply your choice. Matching controls and glass surfaces appear across settings, packages, review, builds and logs. Turn Liquid glass off for the standard themed background and solid cards. Tap the info icons for details."),
+            AppFeature("Updates and changelog", "Stay informed about new releases", "Settings → System offers automatic update-check intervals. Settings → About has the cached changelog. Expand release rows, use Show all for longer lists, or Refresh to download the latest changelog."),
+            AppFeature("Background operation", "Review permissions and battery access", "Use Settings → System to review device access and battery optimization settings so background operations can continue reliably.")
+        )),
+        AppFeaturePage("Elite features", "Extra options for eligible GitHub accounts", eliteFeatures)
+    )
+    fun relevantPages(screen: String): List<AppFeaturePage> {
+        fun page(title: String) = pages.first { it.title == title }
+        fun selected(title: String, vararg features: String) = page(title).let {
+            it.copy(features = it.features.filter { feature -> feature.title in features })
+        }
+        return when (screen) {
+            "Home" -> listOf(page("Projects"), selected("Configs", "Load a config"),
+                selected("Settings", "Updates and changelog"))
+            "Choose your apps" -> listOf(page("Packages"),
+                selected("Configs", "Project debloater", "Export a config", "Stock-app preferences"),
+                selected("ZIP builds", "Build your ZIP"))
+            "Package options" -> listOf(selected("Packages", "Package info", "Keep Stock app"),
+                selected("Configs", "Stock-app preferences"))
+            "Build ZIP" -> listOf(page("ZIP builds"), AppFeaturePage("Save your ZIP", "Handle an existing file", listOf(
+                AppFeature("Replace or keep both", "Choose how to save a duplicate filename",
+                    "Replace updates the existing ZIP. Keep both saves another copy. Back leaves this build ready to save without using a build slot."))))
+            "Logs" -> listOf(AppFeaturePage("Logs", "Inspect and share diagnostics", listOf(
+                AppFeature("Pause and resume", "Read logs at your own pace", "Use Pause in the toolbar to stop the live display, then Resume to continue."),
+                AppFeature("Clear or export", "Manage captured diagnostics", "Clear removes captured log lines from the view. Export diagnostics shares the captured logs for troubleshooting."))))
+            "Installed apps" -> listOf(AppFeaturePage("Installed apps", "Review apps on this device", listOf(
+                AppFeature("Device apps", "Browse installed packages", "This screen lists apps installed on your device. To choose packages for a ZIP, open a project from Home and choose apps from the unified list."))))
+            "Build requests" -> listOf(AppFeaturePage("Build requests", "Review submitted requests", listOf(
+                AppFeature("Refresh requests", "Check for the latest status", "Use Refresh in the toolbar to reload build requests. An internet connection is required."))))
+            else -> listOf(page("Projects"))
+        }
+    }
+
+}
