@@ -1,7 +1,7 @@
-# phase04-002 — network transport and connection handling
+# phase04-003 — catalog JSON library inclusion
 
-Activates the existing OkHttp dependency and its platform initializer, declares INTERNET and ACCESS_NETWORK_STATE, and adds bounded HTTPS metadata reads. The app follows the active validated connection, debounces temporary loss, preserves navigation behind the offline gate and offers themed Retry/network-settings actions with hidden help. Connection checks remain behind the startup logo.
+Adds kotlinx.serialization JSON 1.11.0, matching the original app. No JSON catalog parser, catalog cache or package-selection UI is included yet. Existing local project JSON still uses Android org.json.
 
-The separate test APK will read the pinned public registry index and verify its SHA-256, exercise HTTP404 and cleartext rejection, and render the real offline component with controlled input. Network toggles on the wireless OnePlus connection are deliberately avoided; controlled offline rendering is not claimed as a physical disconnection test. Registry parsing/caching, authenticated delivery and package downloads are not included yet.
+Verification: release lint and unit tests, resolved dependency graph and unchanged merged permissions/initializers. Device checks will verify normal upgrades, local projects, navigation and restart, followed by manual Play Protect scans on OnePlus then Poco. No device pass is claimed in advance.
 
-Verification: release lint, existing project tests and transport tests for successful reads, HTTPS enforcement, failure status and size bounds; merged manifest must match declared expectations. Device checks will cover real validated-network startup, transport outcomes, offline component actions/appearances, activity recreation and saved-project preservation, followed by test-tool removal and manual scans on OnePlus then Poco. No device pass is claimed in advance.
+The preceding network checkpoint required enabling the v2-specific Allow network access setting on Poco after REJECT_ALL was observed. That setting and the successful physical loss/recovery retest are recorded in the ledger. No original-app or global security setting was changed.

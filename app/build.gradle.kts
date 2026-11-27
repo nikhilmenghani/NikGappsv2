@@ -12,8 +12,8 @@ android {
         minSdk = 24
         targetSdk = 37
         testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
-        versionCode = 22
-        versionName = "0.1.0-phase04.002"
+        versionCode = 23
+        versionName = "0.1.0-phase04.003"
     }
     signingConfigs {
         create("investigation") {
@@ -43,6 +43,7 @@ tasks.matching { it.name == "lintRelease" }.configureEach {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0") // Inclusion before catalog parsing.
     compileOnly("androidx.startup:startup-runtime:1.2.0") // Already present at runtime; explicit provider merge is checked by lint.
     implementation("com.squareup.okhttp3:okhttp:5.5.0") // Same version as the original app.
     testImplementation("junit:junit:4.13.2")
