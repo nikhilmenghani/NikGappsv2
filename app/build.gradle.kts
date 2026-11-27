@@ -12,8 +12,8 @@ android {
         minSdk = 24
         targetSdk = 37
         testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
-        versionCode = 34
-        versionName = "0.1.0-phase19.001-permission"
+        versionCode = 35
+        versionName = "0.1.0-phase19.002-removed"
     }
     signingConfigs {
         create("investigation") {
