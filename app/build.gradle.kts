@@ -12,8 +12,8 @@ android {
         minSdk = 24
         targetSdk = 37
         testInstrumentationRunner = "com.nikgapps.v2.FixtureInstrumentation"
-        versionCode = 27
-        versionName = "0.1.0-phase04.007"
+        versionCode = 28
+        versionName = "0.1.0-phase04.008"
     }
     signingConfigs {
         create("investigation") {
@@ -43,6 +43,8 @@ tasks.matching { it.name == "lintRelease" }.configureEach {
 }
 
 dependencies {
+    implementation("io.coil-kt.coil3:coil-compose:3.6.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3") // Inclusion only; image activation is the next checkpoint.
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0") // Same catalog parser dependency as the original app.
     compileOnly("androidx.startup:startup-runtime:1.2.0") // Already present at runtime; explicit provider merge is checked by lint.
     implementation("com.squareup.okhttp3:okhttp:5.5.0") // Same version as the original app.
